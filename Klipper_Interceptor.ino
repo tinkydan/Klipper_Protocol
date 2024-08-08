@@ -12,6 +12,9 @@ bool breakbreak = 0;
  * U2UXD is unused and can be used for your projects.
  * 
 */
+
+String Bytesall;
+
 unsigned long Serial1_MSG;
 unsigned long Serial2_MSG;
 //HardwareSerial Serial1(1);
@@ -24,8 +27,8 @@ unsigned long Serial2_MSG;
 void setup() {
   // Note the format for setting a serial port is as follows: Serial2.begin(baud-rate, protocol, RX pin, TX pin);
   Serial.begin(250000); 
-  Serial1.begin(250000);
-  Serial2.begin(250000);
+  Serial1.begin(28800);
+  Serial2.begin(28800);
   //  Serial1.begin(250000, SERIAL_8N1, RXD1, TXD1);
   //  Serial2.begin(250000, SERIAL_8N1, RXD2, TXD2);
   Serial.println("Begun");
@@ -36,52 +39,60 @@ void loop() {  //Choose Serial1 or Serial2 as required
 
 
 
-  while (Serial1.available()) {
+ if (Serial1.available()) {
     inByte = Serial1.read();
-    Serial.print("SERIAL 1: " + String(inByte) + " ");
+    //Serial.print("SERIAL 1: " + String(inByte) + " ");
+    Bytesall="SERIAL 1 " + String(inByte) + " ";
     Serial1_MSG = millis();
     breakbreak = 0;
     int inByte1=inByte;
+    if (inByte1>64){inByte1=64;}
     for (int i = 1; i < inByte1; i++) {
       while (Serial1.available()==0) {
-        if ((millis() - Serial1_MSG) > 20) {
+        if ((millis() - Serial1_MSG) > 30) {
           breakbreak = 1;
          break;
         }
       }
       if (breakbreak) {
-        Serial.print("  __TIMEOUT");
+        //Serial.print("  __TIMEOUT");
+         Bytesall+="  __TIMEOUT";
        break;
       
       }
       inByte = Serial1.read();
-      Serial.print(String(inByte) + " ");
+      //Serial.print(String(inByte) + " ");
+      Bytesall+=String(inByte) + " ";
     }
-    Serial.println(" ");
+    Serial.println(Bytesall);
   }
 
+if (Serial2.available()) {
 
-  while (Serial2.available()) {
     inByte = Serial2.read();
-    Serial.print("SERIAL 2: " + String(inByte) + " ");
+    //Serial.print("SERIAL 2: " + String(inByte) + " ");
+    Bytesall="SERIAL 2: " + String(inByte) + " ";
     Serial2_MSG = millis();
     breakbreak = 0;
       int inByte1=inByte;
-    for (int i = 1; i < inByte1; i++) {
+      if (inByte1>64){inByte1=64;}
+       for (int i = 1; i < inByte1; i++) {
      while (Serial2.available()==0) {
-        if ((millis() - Serial2_MSG) > 20) {
+        if ((millis() - Serial2_MSG) > 30) {
           breakbreak = 1;
          break;
         }
       }
       if (breakbreak) {
-        Serial.print("  __TIMEOUT");
+        //Serial.print("  __TIMEOUT");
+        Bytesall+="  __TIMEOUT";
         break;
         
       }
       inByte = Serial2.read();
-      Serial.print(String(inByte) + " ");
+      //Serial.print(String(inByte) + " ");
+      Bytesall+=String(inByte) + " ";
     }
-    Serial.println(" ");
+    Serial.println(Bytesall);
   }
 }
