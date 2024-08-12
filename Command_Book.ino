@@ -159,6 +159,10 @@ case 27:
    oid=IntVals[1];
    reason=IntVals[2];
 
+//    REASON_ENDSTOP_HIT = 1
+//    REASON_COMMS_TIMEOUT = 2
+//    REASON_HOST_REQUEST = 3
+
    break;
 case 28:
    //__  trsync_set_timeout   __//
@@ -679,6 +683,9 @@ case -24:
    can_trigger=IntVals[2];
    trigger_reason=IntVals[3];
    clock=IntVals[4];
+//    REASON_ENDSTOP_HIT = 1
+//    REASON_COMMS_TIMEOUT = 2
+//    REASON_HOST_REQUEST = 3
 
    break;
 case -23:
