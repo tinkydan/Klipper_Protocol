@@ -15,7 +15,6 @@ int64_t VLQ(byte inBytes[], int length) {
   }
 
   if (max_int[length - 1] < stand_I) {
-
     stand_I = stand_I - max_int[length - 1] - 1 + min_int[length - 1];
   }
   //  -32 .. 95	1
@@ -23,4 +22,28 @@ int64_t VLQ(byte inBytes[], int length) {
   //-524288 .. 1572863	3
   //-67108864 .. 201326591	4
   //-2147483648 .. 4294967295	5
+  return stand_I;
+}
+
+byte EncodeVLQ(int64_t Value) {
+
+
+  for (int i = 0; i < 5; i++) {
+    if ((Value <= max_int[i]) && (Value >= min_int[i])) {
+      byte Encoded[i + 1] int num_byte = i + 1;
+
+      if (Value < 0) {
+        Value = Value - min_int[num_byte - 1] + 1 + max_int[num_byte - 1]
+      }
+
+      for (int t = num_byte - 1; t > 0; t--)
+        bitSet(Encoded[t], 7) = 1;
+      for (int u = 0; u < 7; u++) {
+        bitSet(Encoded[t], u) = bitRead(Value, t * 7 + u);
+        ;
+      }
+    }
+  }
+  bitSet(Encoded[num_byte], 7) = 0;
+  return Encoded;
 }
