@@ -6,13 +6,13 @@ int secondInt[116] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
 //int MessagePOS;
 //byte Message[5];
 
-uint32_t IntVals[8];
+int32_t IntVals[8];
 String StrVals[2];
 
 #include <FastCRC.h>
 FastCRC16 CRC16;
 
-uint32_t ProcessNextInt() {
+int32_t ProcessNextInt() {
   byte ByteComb[5];
   int VQLp = 0;
 

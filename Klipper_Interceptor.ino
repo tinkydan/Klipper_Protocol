@@ -1,9 +1,9 @@
 // 3ms is the longest time a 64byte message should take to send over the serial line
 
-
+/* 
 int inByte;
 bool breakbreak = 0;
-
+*/
 /*int bytv
  * There are three serial ports on the ESP known as U0UXD, U1UXD and U2UXD.
  * 
@@ -12,7 +12,7 @@ bool breakbreak = 0;
  * U2UXD is unused and can be used for your projects.
  * 
 */
-
+/*
 String Bytesall;
 
 unsigned long Serial1_MSG;
@@ -96,3 +96,5 @@ if (Serial2.available()) {
     Serial.println(Bytesall);
   }
 }
+
+*/
