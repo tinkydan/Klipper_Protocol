@@ -4,9 +4,7 @@ int bytePOS = 0;
 
 //.. uppdated for  non blocking
 
-void Serial_Parse() {
-
-
+void Serial_Parse(){
   if (Serial.available()) {
 
     if (first_Byte) {

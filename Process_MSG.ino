@@ -15,8 +15,6 @@ FastCRC16 CRC16;
 int64_t ProcessNextInt() {
   byte ByteComb[5];
   int VQLp = 0;
-
-
   while ((Message[MessagePOS] > 127 )||( VQLp >= 5)) {
     ByteComb[VQLp] = Message[MessagePOS];
     VQLp++;
@@ -35,11 +33,11 @@ int64_t ProcessNextInt() {
 void Process_MSG(byte Message[], byte Trailer[]) {
   int MessagePOS = 2;
   SequenceN = Message[1];
-  unit16_t checkSum = CRC16.ccitt(Message, sizeof(Message));
+  unit16_t checkSum = CRC16.ccitt(Message, Message[0]);
   uint16_t combined = (Trailer[0] << 8) + Trailer[1];
   if (checkSum == combined) {
 
-    while (MessagePOS < sizeof(Message)) {
+    while (MessagePOS < Message[0]) {
       MessagePOS++;
       int FunctionID = Message[MessagePOS];
       for (int u = 0; u < firstInt[FunctionID]; u++;) {
@@ -56,7 +54,9 @@ void Process_MSG(byte Message[], byte Trailer[]) {
       for (int u = firstInt[FunctionID]; u < firstInt[FunctionID] + secondInt[FunctionID]; u++;) {
         IntVals[u] = ProcessNextInt();
       }
+      Run(FunctionID);
     }
+    
 
 //! send AK
   } else {
