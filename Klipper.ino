@@ -1,22 +1,14 @@
 
-int VQL_len = 0;
-byte Encoded[7];
-// pins for the LEDs:
-
-//Klipper protocol decoder
-int64_t max_int[8] = { 95, 12287, 1572863, 201326591, 4294967295, 25769803775, 3298534883327, 422212465065983 };
-int64_t min_int[7] = { -32, -4096, -524288, -67108864, -2147483648, -17179869184, -2199023255552 };
-
 
 
 //#define DEBUG_Command
 
 
 #ifdef DEBUG_Command
-#define SerialPtVQL(x)  Serial1.print (x)
-#define SerialPtLnVQL(x)  Serial1.println (x)
+#define SerialPtVQL(x) Serial1.print(x)
+#define SerialPtLnVQL(x) Serial1.println(x)
 #else
-#define SerialPtVQL(x)  
+#define SerialPtVQL(x)
 #define SerialPtLnVQL(x)
 #endif
 
@@ -25,7 +17,7 @@ int64_t min_int[7] = { -32, -4096, -524288, -67108864, -2147483648, -17179869184
 
 
 // Decode the VLQ value to an int64_t (generally donconverted to a int32 or a uint32)
-int64_t VLQ(byte inBytes[5], int length){
+int64_t VLQ(byte inBytes[5], int length) {
   bool bitvec[64];
 
   for (int i = 0; i < length; i++) {
@@ -48,6 +40,7 @@ int64_t VLQ(byte inBytes[5], int length){
   //-524288 .. 1572863	3
   //-67108864 .. 201326591	4
   //-2147483648 .. 4294967295	5
+  SerialPtLnVQL("Integer Value " + String(stand_I));
   return stand_I;
 }
 
@@ -89,11 +82,43 @@ void EncodeVLQ(int64_t Value) {
       }
     }
   }
-  holdb = Encoded[num_byte-1];
+  holdb = Encoded[num_byte - 1];
   // bitSet( holdb, 7) = 0;
   bitWrite(holdb, 7, 0);
-  Encoded[num_byte-1] = holdb;
-  
+  Encoded[num_byte - 1] = holdb;
+
   //holdb
   // return Encoded;
+}
+
+
+
+
+
+
+void setup_reply() {
+  rpl_j = 2;
+  reply[1] = SequenceN + 1;
+  if (reply[1] >= 32) { reply[1] = 16; }
+}
+
+
+
+
+
+void finish_reply() {
+  reply[0] = rpl_j + 3;
+  CRCV = calcCRC16(reply, rpl_j, 0x1021, 0xFFFF, 0x0000, true, true);
+  reply[rpl_j] = highByte(CRCV);
+  rpl_j++;
+  reply[rpl_j] = lowByte(CRCV);
+  rpl_j++;
+  reply[rpl_j] = 126;
+  rpl_j++;
+
+  for (int i = 0; i < rpl_j; i++) {
+    // Serial.print(reply[i]);
+    Serial.print(String(reply[i]) + " ");
+  }
+  Serial.println("");
 }

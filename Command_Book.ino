@@ -3,8 +3,8 @@
 
 
 #ifdef DEBUG_Command
-#define SerialPtCom(x)  Serial1.print (x)
-#define SerialPtLnCom(x)  Serial1.println (x)
+#define SerialPtCom(x)  Serial.print (x)
+#define SerialPtLnCom(x)  Serial.println (x)
 #else
 #define SerialPtCom(x)  
 #define SerialPtLnCom(x)  
@@ -12,22 +12,45 @@
 
 void Run(int Command){
 switch (Command){
-
 case 1:
-   //__  identify   __//
-   SerialPtLnCom("identify");
-   offset=IntVals[1];
-   SerialPtCom("     offset=" + String(offset));
-   count=IntVals[2];
-   SerialPtCom("     count=" + String(count));
-   SerialPtLnCom("   |");
+  //__  identify   __//
+  SerialPtLnCom("identify");
+  offset = IntVals[1];
+  SerialPtCom("     offset=" + String(offset));
+  count = IntVals[2];
+  SerialPtCom("     count=" + String(count));
+  SerialPtLnCom("   |");
+  fm = millis();
+  // while((millis()-fm)<2000){  }
 
-   break;
+  setup_reply();
 
-case 2:
-   //__  clear_shutdown   __//
-   SerialPtLnCom("clear_shutdown");
-   SerialPtLnCom("   |");
+  reply[2] = 0;
+  
+  EncodeVLQ(offset);
+  for (int i = 0; i < VQL_len; i++) {
+    rpl_j++;
+    reply[rpl_j] = Encoded[i];
+  }
+  rpl_j++;
+  reply[rpl_j] = min(count, ident_leng - offset);
+  holdi = reply[rpl_j];
+  rpl_j++;
+
+   for (int i = offset; i < (offset + holdi); i++) {
+    if (i <= ident_leng) {
+      reply[rpl_j] = ident[i];
+      rpl_j++;
+    }
+  }
+  finish_reply();
+
+    break;
+
+case 2: 
+  //__  clear_shutdown   __//
+  SerialPtLnCom("clear_shutdown");
+  SerialPtLnCom("   |");
 
    break;
 
@@ -46,8 +69,8 @@ case 4:
    break;
 
 case 5:
-   //__  get_clock   __//
-   SerialPtLnCom("get_clock");
+   //__  get_clockint   __//
+   SerialPtLnCom("get_clockint");
    SerialPtLnCom("   |");
 
    break;
@@ -144,8 +167,8 @@ case 15:
    SerialPtLnCom("queue_digital_out");
    oid=IntVals[1];
    SerialPtCom("     oid=" + String(oid));
-   clock=IntVals[2];
-   SerialPtCom("     clock=" + String(clock));
+   clockint=IntVals[2];
+   SerialPtCom("     clockint=" + String(clockint));
    on_ticks=IntVals[3];
    SerialPtCom("     on_ticks=" + String(on_ticks));
    SerialPtLnCom("   |");
@@ -201,12 +224,12 @@ case 19:
    break;
 
 case 20:
-   //__  reset_step_clock   __//
-   SerialPtLnCom("reset_step_clock");
+   //__  reset_step_clockint   __//
+   SerialPtLnCom("reset_step_clockint");
    oid=IntVals[1];
    SerialPtCom("     oid=" + String(oid));
-   clock=IntVals[2];
-   SerialPtCom("     clock=" + String(clock));
+   clockint=IntVals[2];
+   SerialPtCom("     clockint=" + String(clockint));
    SerialPtLnCom("   |");
 
    break;
@@ -268,8 +291,8 @@ case 25:
    SerialPtLnCom("endstop_home");
    oid=IntVals[1];
    SerialPtCom("     oid=" + String(oid));
-   clock=IntVals[2];
-   SerialPtCom("     clock=" + String(clock));
+   clockint=IntVals[2];
+   SerialPtCom("     clockint=" + String(clockint));
    sample_ticks=IntVals[3];
    SerialPtCom("     sample_ticks=" + String(sample_ticks));
    sample_count=IntVals[4];
@@ -315,8 +338,8 @@ case 28:
    SerialPtLnCom("trsync_set_timeout");
    oid=IntVals[1];
    SerialPtCom("     oid=" + String(oid));
-   clock=IntVals[2];
-   SerialPtCom("     clock=" + String(clock));
+   clockint=IntVals[2];
+   SerialPtCom("     clockint=" + String(clockint));
    SerialPtLnCom("   |");
 
    break;
@@ -350,8 +373,8 @@ case 31:
    SerialPtLnCom("query_analog_in");
    oid=IntVals[1];
    SerialPtCom("     oid=" + String(oid));
-   clock=IntVals[2];
-   SerialPtCom("     clock=" + String(clock));
+   clockint=IntVals[2];
+   SerialPtCom("     clockint=" + String(clockint));
    sample_ticks=IntVals[3];
    SerialPtCom("     sample_ticks=" + String(sample_ticks));
    sample_count=IntVals[4];
@@ -530,8 +553,8 @@ case 45:
    SerialPtLnCom("queue_pwm_out");
    oid=IntVals[1];
    SerialPtCom("     oid=" + String(oid));
-   clock=IntVals[2];
-   SerialPtCom("     clock=" + String(clock));
+   clockint=IntVals[2];
+   SerialPtCom("     clockint=" + String(clockint));
    value=IntVals[3];
    SerialPtCom("     value=" + String(value));
    SerialPtLnCom("   |");
@@ -573,8 +596,8 @@ case 48:
    SerialPtLnCom("buttons_query");
    oid=IntVals[1];
    SerialPtCom("     oid=" + String(oid));
-   clock=IntVals[2];
-   SerialPtCom("     clock=" + String(clock));
+   clockint=IntVals[2];
+   SerialPtCom("     clockint=" + String(clockint));
    rest_ticks=IntVals[3];
    SerialPtCom("     rest_ticks=" + String(rest_ticks));
    retransmit_count=IntVals[4];
@@ -616,10 +639,10 @@ case 51:
    SerialPtLnCom("tmcuart_send");
    oid=IntVals[1];
    SerialPtCom("     oid=" + String(oid));
-   write=StrVals[1];
-   SerialPtCom("     write=" + write);
-   read=IntVals[2];
-   SerialPtCom("     read=" + String(read));
+   writestr=StrVals[1];
+   SerialPtCom("     writestr=" + writestr);
+   readint=IntVals[2];
+   SerialPtCom("     readint=" + String(readint));
    SerialPtLnCom("   |");
 
    break;
@@ -685,8 +708,8 @@ case 56:
    SerialPtLnCom("query_counter");
    oid=IntVals[1];
    SerialPtCom("     oid=" + String(oid));
-   clock=IntVals[2];
-   SerialPtCom("     clock=" + String(clock));
+   clockint=IntVals[2];
+   SerialPtCom("     clockint=" + String(clockint));
    poll_ticks=IntVals[3];
    SerialPtCom("     poll_ticks=" + String(poll_ticks));
    sample_ticks=IntVals[4];
@@ -835,8 +858,8 @@ case 66:
    SerialPtLnCom("query_thermocouple");
    oid=IntVals[1];
    SerialPtCom("     oid=" + String(oid));
-   clock=IntVals[2];
-   SerialPtCom("     clock=" + String(clock));
+   clockint=IntVals[2];
+   SerialPtCom("     clockint=" + String(clockint));
    rest_ticks=IntVals[3];
    SerialPtCom("     rest_ticks=" + String(rest_ticks));
    min_value=IntVals[4];
@@ -909,8 +932,8 @@ case 72:
    SerialPtLnCom("query_spi_angle");
    oid=IntVals[1];
    SerialPtCom("     oid=" + String(oid));
-   clock=IntVals[2];
-   SerialPtCom("     clock=" + String(clock));
+   clockint=IntVals[2];
+   SerialPtCom("     clockint=" + String(clockint));
    rest_ticks=IntVals[3];
    SerialPtCom("     rest_ticks=" + String(rest_ticks));
    time_shift=IntVals[4];
@@ -1028,8 +1051,8 @@ case 83:
    SerialPtLnCom("ldc1612_setup_home");
    oid=IntVals[1];
    SerialPtCom("     oid=" + String(oid));
-   clock=IntVals[2];
-   SerialPtCom("     clock=" + String(clock));
+   clockint=IntVals[2];
+   SerialPtCom("     clockint=" + String(clockint));
    threshold=IntVals[3];
    SerialPtCom("     threshold=" + String(threshold));
    trsync_oid=IntVals[4];
@@ -1160,8 +1183,8 @@ case 94:
 case 95:
    //__  shutdown   __//
    SerialPtLnCom("shutdown");
-   clock=IntVals[1];
-   SerialPtCom("     clock=" + String(clock));
+   clockint=IntVals[1];
+   SerialPtCom("     clockint=" + String(clockint));
    static_string_id=IntVals[2];
    SerialPtCom("     static_string_id=" + String(static_string_id));
    SerialPtLnCom("   |");
@@ -1186,17 +1209,17 @@ case -31:
    SerialPtLnCom("uptime");
    high=IntVals[1];
    SerialPtCom("     high=" + String(high));
-   clock=IntVals[2];
-   SerialPtCom("     clock=" + String(clock));
+   clockint=IntVals[2];
+   SerialPtCom("     clockint=" + String(clockint));
    SerialPtLnCom("   |");
 
    break;
 
 case -30:
-   //__  clock   __//
-   SerialPtLnCom("clock");
-   clock=IntVals[1];
-   SerialPtCom("     clock=" + String(clock));
+   //__  clockint   __//
+   SerialPtLnCom("clockint");
+   clockint=IntVals[1];
+   SerialPtCom("     clockint=" + String(clockint));
    SerialPtLnCom("   |");
 
    break;
@@ -1269,8 +1292,8 @@ case -24:
    SerialPtCom("     can_trigger=" + String(can_trigger));
    trigger_reason=IntVals[3];
    SerialPtCom("     trigger_reason=" + String(trigger_reason));
-   clock=IntVals[4];
-   SerialPtCom("     clock=" + String(clock));
+   clockint=IntVals[4];
+   SerialPtCom("     clockint=" + String(clockint));
    SerialPtLnCom("   |");
 
    break;
@@ -1328,8 +1351,8 @@ case -19:
    SerialPtLnCom("tmcuart_response");
    oid=IntVals[1];
    SerialPtCom("     oid=" + String(oid));
-   read=StrVals[1];
-   SerialPtCom("     read=" + read);
+   readstr=StrVals[1];
+   SerialPtCom("     readstr=" + readstr);
    SerialPtLnCom("   |");
 
    break;
@@ -1380,8 +1403,8 @@ case -15:
    SerialPtLnCom("spi_angle_transfer_response");
    oid=IntVals[1];
    SerialPtCom("     oid=" + String(oid));
-   clock=IntVals[2];
-   SerialPtCom("     clock=" + String(clock));
+   clockint=IntVals[2];
+   SerialPtCom("     clockint=" + String(clockint));
    response=StrVals[1];
    SerialPtCom("     response=" + response);
    SerialPtLnCom("   |");
@@ -1406,8 +1429,8 @@ case -13:
    SerialPtLnCom("sensor_bulk_status");
    oid=IntVals[1];
    SerialPtCom("     oid=" + String(oid));
-   clock=IntVals[2];
-   SerialPtCom("     clock=" + String(clock));
+   clockint=IntVals[2];
+   SerialPtCom("     clockint=" + String(clockint));
    query_ticks=IntVals[3];
    SerialPtCom("     query_ticks=" + String(query_ticks));
    next_sequence=IntVals[4];
@@ -1432,122 +1455,13 @@ case -12:
    SerialPtLnCom("   |");
 
    break;
+   default:
+    SerialPtLnCom("Function " + String(Command) + " Does not exist in library");
+
+   break;
 }}
 
    
-   int32_t offset;
-   int32_t count;
-   int32_t crc;
-   int32_t order;
-   int32_t addr;
-   int32_t val;
-   int32_t pin;
-   int32_t value;
-   int32_t oid;
-   int32_t clock;
-   int32_t on_ticks;
-   int32_t cycle_ticks;
-   int32_t default_value;
-   int32_t max_duration;
-   int32_t trsync_oid;
-   int32_t dir;
-   int32_t interval;
-   int32_t add;
-   int32_t step_pin;
-   int32_t dir_pin;
-   int32_t invert_step;
-   int32_t step_pulse_ticks;
-   int32_t sample_ticks;
-   int32_t sample_count;
-   int32_t rest_ticks;
-   int32_t pin_value;
-   int32_t trigger_reason;
-   int32_t pull_up;
-   int32_t reason;
-   int32_t report_clock;
-   int32_t report_ticks;
-   int32_t expire_reason;
-   int32_t min_value;
-   int32_t max_value;
-   int32_t range_check_count;
-   int32_t spi_oid;
-   int32_t spi_bus;
-   int32_t mode;
-   int32_t rate;
-   int32_t cs_active_high;
-   int32_t read_len;
-   int32_t i2c_bus;
-   int32_t address;
-   int32_t retransmit_count;
-   int32_t invert;
-   int32_t pos;
-   int32_t button_count;
-   int32_t read;
-   int32_t rx_pin;
-   int32_t tx_pin;
-   int32_t bit_time;
-   int32_t data_size;
-   int32_t bit_max_ticks;
-   int32_t reset_min_ticks;
-   int32_t poll_ticks;
-   int32_t cs_pin;
-   int32_t sclk_pin;
-   int32_t sid_pin;
-   int32_t sync_delay_ticks;
-   int32_t cmd_delay_ticks;
-   int32_t rs_pin;
-   int32_t e_pin;
-   int32_t d4_pin;
-   int32_t d5_pin;
-   int32_t d6_pin;
-   int32_t d7_pin;
-   int32_t delay_ticks;
-   int32_t miso_pin;
-   int32_t mosi_pin;
-   int32_t scl_pin;
-   int32_t sda_pin;
-   int32_t max_invalid_count;
-   int32_t thermocouple_type;
-   int32_t time_shift;
-   int32_t spi_angle_type;
-   int32_t i2c_oid;
-   int32_t threshold;
-   int32_t error_reason;
-   int32_t intb_pin;
-   int32_t gain_channel;
-   int32_t dout_pin;
-   int32_t data_ready_pin;
-   int32_t static_string_id;
-   int32_t sum;
-   int32_t sumsq;
-   int32_t high;
-   int32_t is_config;
-   int32_t is_shutdown;
-   int32_t move_count;
-   int32_t homing;
-   int32_t next_clock;
-   int32_t can_trigger;
-   int32_t ack_count;
-   int32_t success;
-   int32_t count_clock;
-   int32_t fault;
-   int32_t trigger_clock;
-   int32_t query_ticks;
-   int32_t next_sequence;
-   int32_t buffered;
-   int32_t possible_overflows;
-   int32_t sequence;
-   int32_t data;
-   int32_t shutdown_msg;
-   int32_t reg;
-   int32_t clear_set_bits;
-   int32_t write;
-   int32_t cmds;
-   int32_t response;
-   int32_t state;
-   int32_t read;
-Int[116]={2,0,0,0,0,1,0,1,0,0,3,2,2,2,3,2,5,2,1,2,2,4,5,1,8,3,2,2,4,1,8,2,2,1,1,4,1,3,1,1,1,4,1,3,3,6,2,5,4,2,1,5,1,2,5,4,3,1,1,6,1,1,8,6,5,6,3,1,2,2,1,4,3,1,2,2,1,2,2,1,2,1,6,3,2,1,2,4,1,2,3,0,0,1,2,3,2,1,4,0,1,2,4,4,3,1,1,2,1,2,4,4,2,3,6,2};
-Int[116]={1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,2,1,1,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,1,1,0,1,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,1,1,0,0,0,1,0,0,1};
-Int[116]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
-}
+
+
