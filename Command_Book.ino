@@ -1216,7 +1216,7 @@ case -31:
    break;
 
 case -30:
-   //__  clockint   __//
+   //__  clock   __//
    SerialPtLnCom("clockint");
    clockint=IntVals[1];
    SerialPtCom("     clockint=" + String(clockint));
