@@ -370,13 +370,17 @@ case 30:
 
 case 31:
    //__  query_analog_in   __//
+
+
+   SampleTicks=IntVals[3];
+   int Ch_num;
    SerialPtLnCom("query_analog_in");
    oid=IntVals[1];
    SerialPtCom("     oid=" + String(oid));
    clockint=IntVals[2];
    SerialPtCom("     clockint=" + String(clockint));
    sample_ticks=IntVals[3];
-   SerialPtCom("     sample_ticks=" + String(sample_ticks));
+   SerialPtCom("     sample_ticks=" + String(SampleTicks));
    sample_count=IntVals[4];
    SerialPtCom("     sample_count=" + String(sample_count));
    rest_ticks=IntVals[5];
@@ -388,6 +392,20 @@ case 31:
    range_check_count=IntVals[8];
    SerialPtCom("     range_check_count=" + String(range_check_count));
    SerialPtLnCom("   |");
+    for (int i=0;i<37;i++){
+      if (oid==AnalogMetaData[i][1]){
+        Ch_num=i;
+      }
+    }
+    // Active // PIn Num // OID  // Index // Sample Ticks // Sample Count // Rest_Ticks //Min_value  // Max_Value //  Range Check Count
+    AnalogMetaData[Ch_num][0]=1; // Active 
+    AnalogMetaData[Ch_num][4]=IntVals[3]; // Sample Ticks 
+    AnalogMetaData[Ch_num][5]=IntVals[4]; // Sample Count
+    AnalogMetaData[Ch_num][6]=IntVals[5]; // Rest_Ticks 
+    AnalogMetaData[Ch_num][7]=IntVals[6]; // Min_value
+    AnalogMetaData[Ch_num][8]=IntVals[7]; // Max_Value
+    AnalogMetaData[Ch_num][9]=IntVals[8]; // Range Check Count
+
 
    break;
 
@@ -399,7 +417,9 @@ case 32:
    pin=IntVals[2];
    SerialPtCom("     pin=" + String(pin));
    SerialPtLnCom("   |");
-
+   AnalogMetaData[analogChannels][1]=pin; // active  // PIn Num // OID  // Index // 
+   AnalogMetaData[analogChannels][2]=oid; // active // PIn Num // OID  // Index // 
+   analogChannels++;
    break;
 
 case 33:

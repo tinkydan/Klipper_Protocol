@@ -46,6 +46,8 @@ CRC16 crc_c;
 int inByte;
 bool breakbreak = 0;
 
+volatile bool responding=0;
+
 int VQL_len = 0;
 byte Encoded[7];
 // pins for the LEDs:
@@ -54,7 +56,13 @@ byte Encoded[7];
 int64_t max_int[8] = { 95, 12287, 1572863, 201326591, 4294967295, 25769803775, 3298534883327, 422212465065983 };
 int64_t min_int[7] = { -32, -4096, -524288, -67108864, -2147483648, -17179869184, -2199023255552 };
 
-
+ int AnalogReadings[37][8];
+ int AnalogMetaData[37][10];  // Active // PIn Num // OID  // Index // Sample Ticks // Sample Count // Rest_Ticks //Min_value  // Max_Value //  Range Check Count
+ unsigned long AnalogTimmingData[37][2];
+ unsigned long SampleTicks;
+ unsigned long ReportTicks;
+ int analogChannels; // Number of analog channels active  Poll is greater than 0;
+ bool analogChannels_active; 
 
 int ident_leng=2902;
 byte ident[2902]={0x78,0xda,0x9d,0x19,0x6b,0x6f,0xdb,0xc8,0xf1,0xaf,0xec,0x9,0x8,0xda,0x2b,0x6c,0x57,0x24,0x45,0x4a,0x72,0x91,0xf,0x7e,0x25,0x97,0x26,0x4e,0x7c,
@@ -283,6 +291,8 @@ int32_t Serial_MSG;
 //#define TXD2 4
 
 // below script redefines the bitRead and bitWrite functions to be compatible with int64_t valuse so that a uint32_t value cane be properly encoded
+TaskHandle_t AnalogReadTask;
+
 
 #undef bitRead
 #undef bitWrite
@@ -311,7 +321,21 @@ first_Byte=1;
   Serial.println("Begun");
  
   Serial.println("loop");
+
+
+  xTaskCreatePinnedToCore(
+      AnalogReadTaskcode, /* Function to implement the task */
+      "AnalogReadTask", /* Name of the task */
+      10000,  /* Stack size in words */
+      NULL,  /* Task input parameter */
+      1,  /* Priority of the task */
+      &AnalogReadTask,  /* Task handle. */
+      0); /* Core where the task should run */
+
+
 }
+
+
 
 void loop() {  //Choose Serial1 or Serial2 as required
 //Serial.println("loop");

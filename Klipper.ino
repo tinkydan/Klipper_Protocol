@@ -91,13 +91,30 @@ void EncodeVLQ(int64_t Value) {
   // return Encoded;
 }
 
+void EncodeIntoReply(int64_t Value){
+  EncodeVLQ(Value);
+  for (int ui=0; ui<=VQL_len ; ui++){
+    reply[rpl_j]=Encoded[ui];
+    rpl_j++;
+  }
+}
+
 
 
 
 
 
 void setup_reply() {
+int indc=0;
+  while((responding==1)||(indc<2000)){
+    indc++;
+  }
+  if (indc==2000){
+    finish_reply(); // response hanging will be terminated
+  }
+  responding=1;
   rpl_j = 2;
+  
   reply[1] = SequenceN + 1;
   if (reply[1] >= 32) { reply[1] = 16; }
 }
@@ -121,4 +138,5 @@ void finish_reply() {
     Serial.print(String(reply[i]) + " ");
   }
   Serial.println("");
+  responding=0;
 }

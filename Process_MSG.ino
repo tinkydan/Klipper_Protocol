@@ -48,7 +48,7 @@ void Process_MSG() {  //byte Message[], byte Trailer[],int lenh) {
         int StrLength = ProcessNextInt();
         StrVals[y + 1] = "";
         for (int t = 0; t < StrLength; t++) {
-          StrVals[y + 1] += Message[MessagePOS];
+          StrVals[y + 1] += String((char)Message[MessagePOS]);
           MessagePOS++;
         }
       }
