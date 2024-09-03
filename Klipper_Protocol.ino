@@ -281,6 +281,13 @@ long fm;
  * 
 */
 int32_t Serial_MSG;
+unsigned long ST=0;
+hw_timer_t * timer = NULL;
+portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
+
+hw_timer_t* timer1 = NULL;
+portMUX_TYPE timerMux1 = portMUX_INITIALIZER_UNLOCKED;
+
 
 
 //HardwareSerial Serial1(1);
@@ -332,7 +339,17 @@ first_Byte=1;
       &AnalogReadTask,  /* Task handle. */
       0); /* Core where the task should run */
 
+    ST=millis();
+    attachInterrupt(21, ZCISR, RISING);
+    timer = timerBegin(0, 80, true);
+    timerAttachInterrupt(timer, &onTimerISR, false);
+    timerAlarmWrite(timer, 1000000, false);
+    timerAlarmEnable(timer);
 
+      timer1 = timerBegin(1, 80, true);
+    timerAttachInterrupt(timer1, &ZXA, false);
+    timerAlarmWrite(timer1, 1000000, false);
+    timerAlarmEnable(timer);
 }
 
 

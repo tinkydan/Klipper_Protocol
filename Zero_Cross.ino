@@ -1,14 +1,8 @@
-hw_timer_t * timer = NULL;
-portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
-
-hw_timer_t* timer1 = NULL;
-portMUX_TYPE timerMux1 = portMUX_INITIALIZER_UNLOCKED;
 
 
 
 
-
-int Nchan = 10;
+int Nchan = 0;
 int ZN = 0;
 int divS[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 double RES[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -26,7 +20,7 @@ int GATE[] = { 23, 16, 17, 18, 19, 4, 13, 12, 27, 5 };
 int CUR_CHAN = 0;
 
 volatile unsigned long TT=0;
-unsigned long ST=0;
+
 volatile unsigned long ZX=0;
 volatile unsigned long ZXV=0;
 volatile int TC=0;

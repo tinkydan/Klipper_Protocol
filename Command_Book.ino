@@ -66,12 +66,23 @@ case 4:
    SerialPtLnCom("get_uptime");
    SerialPtLnCom("   |");
 
+   setup_reply();
+   EncodeIntoReply(-31);                        // Function ID
+   EncodeIntoReply(millis()/1000);              // Uptime time (seconds since restart)
+   EncodeIntoReply(micros());                   // Clock time
+   finish_reply();
+
    break;
 
 case 5:
    //__  get_clockint   __//
    SerialPtLnCom("get_clockint");
    SerialPtLnCom("   |");
+   
+   setup_reply();
+   EncodeIntoReply(-30);                        // Function ID
+   EncodeIntoReply(micros());                   // Clock time
+   finish_reply();
 
    break;
 
@@ -81,6 +92,8 @@ case 6:
    crc=IntVals[1];
    SerialPtCom("     crc=" + String(crc));
    SerialPtLnCom("   |");
+   is_config=1;
+   
 
    break;
 
@@ -88,6 +101,15 @@ case 7:
    //__  get_config   __//
    SerialPtLnCom("get_config");
    SerialPtLnCom("   |");
+
+   setup_reply();
+   EncodeIntoReply(-29);                        // Function ID
+   EncodeIntoReply(is_config);                   // is configurred
+   EncodeIntoReply(crc);                   // is crc of the configuration 
+   EncodeIntoReply(is_shutdown);                   // is shutdown
+   EncodeIntoReply(move_count);                   // move count
+   finish_reply();
+   
 
    break;
 
@@ -565,7 +587,24 @@ case 44:
    value=IntVals[3];
    SerialPtCom("     value=" + String(value));
    SerialPtLnCom("   |");
-
+    for (iu=0;iu<pwmChannelCur;iu++){
+      if (oid==pwmdata[iu][0]){
+        pwmdata[iu][2]=value;
+        pwmdata[iu][6]=0;
+        pwmdata[iu][5]=micros();
+        ledcSetup(iu, 1000000/cycle_ticks, 8);
+        break;
+      }
+    }
+    for (iu=0;iu<Nchan;iu++){
+      if (oid==pwmdata[iu][0]){
+        ZeroCrossdata[iu][2]=value;
+        ZeroCrossdata[iu][5]=0;
+        ZeroCrossdata[iu][1]=micros();
+        BrightSet[iu] = value/256*8160;
+        break;
+      }
+    }
    break;
 
 case 45:
@@ -578,6 +617,22 @@ case 45:
    value=IntVals[3];
    SerialPtCom("     value=" + String(value));
    SerialPtLnCom("   |");
+    for (iu=0;iu<pwmChannelCur;iu++){
+      if (oid==pwmdata[iu][0]){
+        pwmdata[iu][2]=value;
+        pwmdata[iu][6]=clockint;
+x
+        break;
+      }
+    }
+    for (iu=0;iu<Nchan;iu++){
+      if (oid==pwmdata[iu][0]){
+        ZeroCrossdata[iu][2]=value;
+        ZeroCrossdata[iu][5]=clockint;
+        break;
+      }
+    }
+
 
    break;
 
@@ -597,6 +652,36 @@ case 46:
    max_duration=IntVals[6];
    SerialPtCom("     max_duration=" + String(max_duration));
    SerialPtLnCom("   |");
+
+
+    if (pin<50)  { //Pin 50 - 59 are virtual zeros cross pins
+      pwmdata[pwmChannelCur][0]=oid;
+      pwmdata[pwmChannelCur][1]=pin;
+      pwmdata[pwmChannelCur][2]=value;
+      pwmdata[pwmChannelCur][3]=default_value;
+      pwmdata[pwmChannelCur][4]=max_duration;
+      pwmdata[pwmChannelCur][5]=micros();
+      //pwmdata[pwmChannelCur][6]=Change_ticks
+      ledcSetup(pwmChannelCur, 1000000/cycle_ticks, 8);
+      ledcAttachPin(pin, pwmChannelCur);
+      ledcWrite(Cur, value);
+      pwmChannelCur++
+      
+      
+      }
+      else if (pin<60) {// Assign to a zero cross
+        BrightSet[Nchan] = value/256*8160;
+        PinSet[Nchan] = pin;
+        ZeroCrossdata[Nchan][0]=oid;
+        ZeroCrossdata[Nchan][1]=micros();
+        ZeroCrossdata[Nchan][2]=value;
+        ZeroCrossdata[Nchan][3]=default_value;
+        ZeroCrossdata[Nchan][4]=max_duration;
+      // ZeroCrossdata[Nchan][5]=Change_ticks;
+        Nchan++;
+
+      }
+
 
    break;
 
@@ -1209,6 +1294,8 @@ case 95:
    SerialPtCom("     static_string_id=" + String(static_string_id));
    SerialPtLnCom("   |");
 
+   is_shutdown=1;
+
    break;
 
 case -32:
@@ -1256,6 +1343,8 @@ case -29:
    move_count=IntVals[4];
    SerialPtCom("     move_count=" + String(move_count));
    SerialPtLnCom("   |");
+
+
 
    break;
 
