@@ -192,13 +192,13 @@ case 15:
    clockint=IntVals[2];
    SerialPtCom("     clockint=" + String(clockint));
    on_ticks=IntVals[3];
-   SerialPtCom("     on_ticks=" + String(on_ticks));
+   SerialPtCom("     on_ticks=" + String(on_ticks));  //  ticks for software pwm otherwise 0 or 1 for value
    SerialPtLnCom("   |");
 
    break;
 
 case 16:
-   //__  set_digital_out_pwm_cycle   __//
+   //__  set_digital_out_pwm_cycle   __// Software PWN
    SerialPtLnCom("set_digital_out_pwm_cycle");
    oid=IntVals[1];
    SerialPtCom("     oid=" + String(oid));
@@ -587,21 +587,23 @@ case 44:
    value=IntVals[3];
    SerialPtCom("     value=" + String(value));
    SerialPtLnCom("   |");
-    for (iu=0;iu<pwmChannelCur;iu++){
+    for (int iu=0;iu<pwmChannelCur;iu++){
       if (oid==pwmdata[iu][0]){
-        pwmdata[iu][2]=value;
-        pwmdata[iu][6]=0;
-        pwmdata[iu][5]=micros();
+
         ledcSetup(iu, 1000000/cycle_ticks, 8);
+        ledcWrite(iu, value);
+        pwmdata[iu][2]=pwmdata[iu][3];
+        pwmdata[iu][6]=micros()+pwmdata[iu][4];
         break;
       }
     }
-    for (iu=0;iu<Nchan;iu++){
+    for (int iu=0;iu<Nchan;iu++){
       if (oid==pwmdata[iu][0]){
-        ZeroCrossdata[iu][2]=value;
-        ZeroCrossdata[iu][5]=0;
-        ZeroCrossdata[iu][1]=micros();
+
         BrightSet[iu] = value/256*8160;
+        ZeroCrossdata[iu][2]=ZeroCrossdata[iu][3];
+        ZeroCrossdata[iu][5]=micros()+ZeroCrossdata[iu][5];
+        
         break;
       }
     }
@@ -617,15 +619,15 @@ case 45:
    value=IntVals[3];
    SerialPtCom("     value=" + String(value));
    SerialPtLnCom("   |");
-    for (iu=0;iu<pwmChannelCur;iu++){
+    for (int iu=0;iu<pwmChannelCur;iu++){
       if (oid==pwmdata[iu][0]){
         pwmdata[iu][2]=value;
         pwmdata[iu][6]=clockint;
-x
+
         break;
       }
     }
-    for (iu=0;iu<Nchan;iu++){
+    for (int iu=0;iu<Nchan;iu++){
       if (oid==pwmdata[iu][0]){
         ZeroCrossdata[iu][2]=value;
         ZeroCrossdata[iu][5]=clockint;
@@ -664,8 +666,8 @@ case 46:
       //pwmdata[pwmChannelCur][6]=Change_ticks
       ledcSetup(pwmChannelCur, 1000000/cycle_ticks, 8);
       ledcAttachPin(pin, pwmChannelCur);
-      ledcWrite(Cur, value);
-      pwmChannelCur++
+      ledcWrite(pwmChannelCur, value);
+      pwmChannelCur++;
       
       
       }

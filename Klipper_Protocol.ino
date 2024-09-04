@@ -269,6 +269,15 @@ byte ident[2902]={0x78,0xda,0x9d,0x19,0x6b,0x6f,0xdb,0xc8,0xf1,0xaf,0xec,0x9,0x8
     String response;
     String state;
    String readstr;
+
+// PWM function data 
+unsigned long pwmdata[16][6];// oid || pin || value || default_value || max_duration || clock || change at tick 
+unsigned long ZeroCrossdata[10][5];// oid || clock || value || default_value || max_duration ||  change at tick 
+int pwmChannelCur;
+int Nchan = 0;
+int BrightSet[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+int PinSet[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
    unsigned long Time_NPT_ms = 60; // NPT read /every 100mins
 unsigned long Time_NPT_LAST = 0;
 long fm;
@@ -357,6 +366,27 @@ first_Byte=1;
 void loop() {  //Choose Serial1 or Serial2 as required
 //Serial.println("loop");
   Serial_Parse();
+
+
+//queloop
+
+for (int pwm_c=0;pwm_c<pwmChannelCur;pwm_c++){
+  if (micros()>pwmdata[pwm_c][6]){
+    ledcWrite(pwm_c,pwmdata[pwm_c][2]); // set the PWM of the channel
+    pwmdata[pwm_c][2]=pwmdata[pwm_c][3];// Set value to the default value
+    pwmdata[pwm_c][6]=micros()+pwmdata[pwm_c][4]; // sent the change time to the current time plus the max time
+  }
+}
+for (int zc_c=0;zc_c<Nchan;zc_c++){
+  if (micros()>ZeroCrossdata[zc_c][6]){
+          BrightSet[iu] = ZeroCrossdata[iu][2]/256*8160;
+        ZeroCrossdata[iu][2]=ZeroCrossdata[iu][3];
+        ZeroCrossdata[iu][5]=micros()+ZeroCrossdata[iu][5];
+  }
+}
+
+
+
  if ((millis() - Time_NPT_LAST >= Time_NPT_ms) ){
 
  

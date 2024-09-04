@@ -2,7 +2,7 @@
 
 
 
-int Nchan = 0;
+
 int ZN = 0;
 int divS[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 double RES[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -11,9 +11,9 @@ double Output[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 double Bright[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 double BrightSetD[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 ;  // Writes the current settings
-int BrightSet[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
 int Pin[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-int PinSet[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
 int PIN_LAST[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 int GATE[] = { 23, 16, 17, 18, 19, 4, 13, 12, 27, 5 };
 //int THERM[] = {36, 39, 34, 35, 32, 33, 25, 26, 14, 15};
