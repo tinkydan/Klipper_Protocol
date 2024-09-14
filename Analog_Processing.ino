@@ -3,34 +3,45 @@
 //int AnalogMetaData[37][10];  // Active // PIn Num // OID  // Index // Sample Ticks // Sample Count // Rest_Ticks //Min_value  // Max_Value //  Range Check Count
 //unsigned long AnalogTimmingData[37][2];
 void AnalogReadTaskcode( void * parameter) {
-  for (int Ch_num = 0; Ch_num < analogChannels; Ch_num++) {
-    if (AnalogMetaData[Ch_num][0]==1){
-      if ((micros() - AnalogTimmingData[Ch_num][0]) > AnalogMetaData[Ch_num][4]) {  //if channel is active and the time since the last sample is greater than hte sample ticks
-        AnalogTimmingData[Ch_num][1] = micros();
-        AnalogMetaData[Ch_num][3]++;
-        if (AnalogMetaData[Ch_num][3] >= AnalogMetaData[Ch_num][5]) {  //if the sample index needed to be rolled over since it is at the total sample number
-          AnalogMetaData[Ch_num][3] = 0;
-        }
-        AnalogReadings[Ch_num][AnalogMetaData[Ch_num][3]] = analogRead(AnalogMetaData[Ch_num][2]);
-        // check the max and min input values
-        //   AnalogMetaData[Ch_num][7]=IntVals[6]; // Min_value
-        //   AnalogMetaData[Ch_num][8]=IntVals[7]; // Max_Value
-        //   AnalogMetaData[Ch_num][9]=IntVals[8]; // Range Check Count
-      }
+  
+  for(;;){
+    //  Serial.print("loop() running on core ");
+ // Serial.println(xPortGetCoreID());
+ // delay(1000);
 
-      if (((micros() - AnalogTimmingData[Ch_num][1]) > AnalogMetaData[Ch_num][6]) && (responding == 0)) {  //if channel is active and the time since the last sample is greater than hte sample ticks
-        int sample_val;
-        for (int i = 0; i <= AnalogMetaData[Ch_num][5]; i++) {
-          sample_val += AnalogReadings[Ch_num][i];
+    for (int Ch_num = 0; Ch_num < analogChannels; Ch_num++) {
+      if (AnalogMetaData[Ch_num][0]==1){
+        if ((micros() - AnalogTimmingData[Ch_num][0]) > AnalogMetaData[Ch_num][4]) {  //if channel is active and the time since the last sample is greater than hte sample ticks
+          AnalogTimmingData[Ch_num][0] = micros();
+          AnalogMetaData[Ch_num][3]++;
+          if (AnalogMetaData[Ch_num][3] >= AnalogMetaData[Ch_num][5]) {  //if the sample index needed to be rolled over since it is at the total sample number
+            AnalogMetaData[Ch_num][3] = 0;
+          }
+          AnalogReadings[Ch_num][AnalogMetaData[Ch_num][3]] = analogRead(AnalogMetaData[Ch_num][1]);
+           //Serial.println("Analog Reading " + String(micros())+"   " +String(AnalogReadings[Ch_num][AnalogMetaData[Ch_num][3]]));
+          // check the max and min input values
+          //   AnalogMetaData[Ch_num][7]=IntVals[6]; // Min_value
+          //   AnalogMetaData[Ch_num][8]=IntVals[7]; // Max_Value
+          //   AnalogMetaData[Ch_num][9]=IntVals[8]; // Range Check Count
         }
-        setup_reply();
-        EncodeIntoReply(-23);                        // Function ID
-        EncodeIntoReply(AnalogMetaData[Ch_num][2]);  // OID
-        EncodeIntoReply(micros());                   // Clock time
-        EncodeIntoReply(sample_val);                 // Analog Read Vales
-        finish_reply();
+
+        if (((micros() - AnalogTimmingData[Ch_num][1]) > AnalogMetaData[Ch_num][6]) && (responding == 0)) {  //if channel is active and the time since the last sample is greater than hte sample ticks
+          int sample_val=0;
+          AnalogTimmingData[Ch_num][1] = micros();
+          for (int i = 0; i < AnalogMetaData[Ch_num][5]; i++) {
+            sample_val += AnalogReadings[Ch_num][i];
+            //Serial.println("Analog Reading in" + String(AnalogReadings[Ch_num][i]));
+          }
+          SerialPtLnDebug("Analog OID:" + String(AnalogMetaData[Ch_num][2]) + " Reading "  +String(sample_val));
+          setup_reply();
+          EncodeIntoReply(-23);                        // Function ID
+          EncodeIntoReply(AnalogMetaData[Ch_num][2]);  // OID
+          EncodeIntoReply(micros());                   // Clock time
+          EncodeIntoReply(sample_val);                 // Analog Read Vales
+          finish_reply();
+        }
       }
-    }
+    }\
   }
 }
 

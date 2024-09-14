@@ -106,17 +106,22 @@ void EncodeIntoReply(int64_t Value){
 
 void setup_reply() {
 int indc=0;
-  while((responding==1)||(indc<2000)){
+  while((responding==1)&&(indc<2000)){
     indc++;
   }
   if (indc==2000){
     finish_reply(); // response hanging will be terminated
   }
+
   responding=1;
   rpl_j = 2;
   
   reply[1] = SequenceN + 1;
-  if (reply[1] >= 32) { reply[1] = 16; }
+  if (reply[1] >= 32) {
+     reply[1] = 16;
+
+  }
+
 }
 
 
@@ -134,9 +139,16 @@ void finish_reply() {
   rpl_j++;
 
   for (int i = 0; i < rpl_j; i++) {
-    // Serial.print(reply[i]);
+  #ifdef StringDebug
     Serial.print(String(reply[i]) + " ");
+    SerialPtCom(String(reply[i]) + " ");
+  #else
+    Serial.print(reply[i]);
+  #endif
   }
+  #ifdef StringDebug
   Serial.println("");
+  SerialPtLnCom("");
+  #endif
   responding=0;
 }

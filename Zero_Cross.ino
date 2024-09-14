@@ -2,35 +2,16 @@
 
 
 
+void sort_vals (){
+      for (int i = 0; i < Nchan; i++) {
+      PinSet[i] = GATE[i];  // Reset the pin order so they can be resorted based on duty cycle
+    }
 
-int ZN = 0;
-int divS[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-double RES[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-double Input[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-double Output[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-double Bright[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-double BrightSetD[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-;  // Writes the current settings
-
-int Pin[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-
-int PIN_LAST[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-int GATE[] = { 23, 16, 17, 18, 19, 4, 13, 12, 27, 5 };
-//int THERM[] = {36, 39, 34, 35, 32, 33, 25, 26, 14, 15};
-int CUR_CHAN = 0;
-
-volatile unsigned long TT=0;
-
-volatile unsigned long ZX=0;
-volatile unsigned long ZXV=0;
-volatile int TC=0;
-int brightnessach = 85;
-volatile int brightness = 5000;
-volatile int refire_count = 0;
-int timer1_write_val;
-float brightnessF = 5000;
-int lst_t_set;
-
+    sort(BrightSetD, PinSet, Nchan);  // Sorts the Brightness and the pin numbers according to the channel that has the highest duty cycle
+    for (int i = 0; i < Nchan; i++) {
+      BrightSet[i] = BrightSetDs[i];  // Rewrites as an integer
+    }
+}
 
 void sort(double a[], int pos[], int size) {
   for (int i = 0; i < (size - 1); i++) {
@@ -45,6 +26,11 @@ void sort(double a[], int pos[], int size) {
       }
     }
   }
+  for (int i = 0; i < Nchan; i++) {
+  PinSet[i]=pos[i];
+   BrightSetDs[i]=a[i];
+
+  }
 }
 
 
@@ -55,14 +41,20 @@ void ICACHE_RAM_ATTR ZCISR() {  //zero cross detect
   //memcpy(Bright, BrightSet, Nchan*4);
   //memcpy(Pin, PinSet, Nchan*4);
 
-  unsigned long ch = micros() - ZX;
-  if (ch > 1500) {
+  ch = micros() - ZX;
+  if (ch > 8000) {
     ZXV = ch;
+    chac = micros() - ZX;
+    drift=chac-16666;
     timerWrite(timer1, 0);
-    timerAlarmWrite(timer1, 4167, false);  // S
+    timerAlarmWrite(timer1, 1800-drift, false);  // S
     timerAlarmEnable(timer1);
-    ZX = micros();
+    correction=long(float(correction)*0.9+float(drift)*.1);
+    ZX = micros()+correction;
     refire_count = 1;
+     //for (int i = 0; i < Nchan; i++) {
+     //
+     //}
   }
 }
 
@@ -85,14 +77,15 @@ void ICACHE_RAM_ATTR ZXA() {
     PIN_LAST[i] = 0;
     Bright[i] = BrightSet[i];
     Pin[i] = PinSet[i];
+    
   }
 
   for (int i = 0; i < Nchan; i++) {
-    if ((Bright[i] != 8160) && (Bright[i] > 50)) {
+    if ((Bright[i] < 8160) && (Bright[i] > 50)) {
       digitalWrite(Pin[i], LOW);
 
       timer1_write_val = 1 * (8160 - Bright[i]);  //12us
-    } else if (Bright[i] == 8160) {
+    } else if (Bright[i] >= 8160) {
       digitalWrite(Pin[i], HIGH);
       timer1_write_val = 1000000;
     } else if (Bright[i] <= 50) {
@@ -100,10 +93,10 @@ void ICACHE_RAM_ATTR ZXA() {
       timer1_write_val = 1000000;
     }
 
-    if ((CUR_CHAN == 0) && (Bright[i] != 8160) && (Bright[i] > 50)) {
+    if ((CUR_CHAN == 0) && (Bright[i] < 8160) && (Bright[i] > 50)) {
       PIN_LAST[i] = Pin[i];
     }
-    if ((CUR_CHAN == 0) && (i < (Nchan - 1)) && (Bright[i] != Bright[i + 1]) && (Bright[i] != 8160) && (Bright[i] > 50)) {
+    if ((CUR_CHAN == 0) && (i < (Nchan - 1)) && (Bright[i] != Bright[i + 1]) && (Bright[i] < 8160) && (Bright[i] > 50)) {
       CUR_CHAN = i + 1;
       timerWrite(timer, 0);
       timerAlarmWrite(timer, timer1_write_val, false);

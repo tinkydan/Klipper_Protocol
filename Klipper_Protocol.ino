@@ -1,3 +1,23 @@
+#define DEBUG_Command
+#define DEBUG_serial
+#define StringDebug
+
+#ifdef DEBUG_serial
+#define SerialPtDebug(x)  Serial2.print (x)
+#define SerialPtLnDebug(x)  Serial2.println (x)
+#else
+#define SerialPtCom(x)  
+#define SerialPtLnCom(x)  
+#endif
+
+#define RXD2 16
+#define TXD2 17
+
+// Uptime Library
+#include <Uptime.h>                                          // Library To Calculate Uptime
+Uptime uptime; 
+
+
 // 3ms is the longest time a 64byte message should take to send over the serial line
 
 int MSG_Timeout = 3;  // miliseconds for the 64byte (max time to read the message)
@@ -54,6 +74,7 @@ byte Encoded[7];
 
 //Klipper protocol decoder
 int64_t max_int[8] = { 95, 12287, 1572863, 201326591, 4294967295, 25769803775, 3298534883327, 422212465065983 };
+
 int64_t min_int[7] = { -32, -4096, -524288, -67108864, -2147483648, -17179869184, -2199023255552 };
 
  int AnalogReadings[37][8];
@@ -270,15 +291,65 @@ byte ident[2902]={0x78,0xda,0x9d,0x19,0x6b,0x6f,0xdb,0xc8,0xf1,0xaf,0xec,0x9,0x8
     String state;
    String readstr;
 
+
 // PWM function data 
 unsigned long pwmdata[16][6];// oid || pin || value || default_value || max_duration || clock || change at tick 
 unsigned long ZeroCrossdata[10][5];// oid || clock || value || default_value || max_duration ||  change at tick 
+unsigned long DpinOut[50][8];// oid || pin || value || default_value || max_duration || Change time ||  Flag for software PWM ||  ticks last pwm
 int pwmChannelCur;
+int DigitalPin;
+
+
+///___________________________________________________
+// zero Cross 
+//+++++++++++++++++++++++++++++++++++++++++++++++++++
 int Nchan = 0;
 int BrightSet[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 int PinSet[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-   unsigned long Time_NPT_ms = 60; // NPT read /every 100mins
+int ZN = 0;
+int divS[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+double RES[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+double Input[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+double Output[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+double Bright[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+double BrightSetD[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+double BrightSetDs[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+
+  // Writes the current settings
+signed long long correction=0;
+signed long long drift=0;
+signed long long ch;
+signed long long chac;
+
+int Pin[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+int PIN_LAST[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+int GATE[] ={ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+int GATE_MAP[] = { 23, 16, 17, 18, 19, 4, 13, 12, 27, 5 };
+//int THERM[] = {36, 39, 34, 35, 32, 33, 25, 26, 14, 15};
+int CUR_CHAN = 0;
+
+volatile unsigned long TT=0;
+
+volatile unsigned long ZX=0;
+volatile unsigned long ZXV=0;
+volatile int TC=0;
+int brightnessach = 85;
+volatile int brightness = 5000;
+volatile int refire_count = 0;
+int timer1_write_val;
+float brightnessF = 5000;
+int lst_t_set;
+
+
+///___________________________________________________
+//+++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+   unsigned long Time_NPT_ms = 500; // NPT read /every 100mins
 unsigned long Time_NPT_LAST = 0;
 long fm;
 /*int bytv
@@ -327,68 +398,143 @@ template<typename T> bool bitRead(T value, byte bit) {
 }
 
 rmt_data_t led_data[NR_OF_ALL_BITS];
+
+
+
 void setup() {
   // Note the format for setting a serial port is as follows: Serial2.begin(baud-rate, protocol, RX pin, TX pin);
-  Serial.begin(250000); 
+
+
+     Serial2.begin(115200, SERIAL_8N1, RXD2, TXD2);
+  
+  Serial.begin(115200); 
   Serial.setTimeout(25);
 first_Byte=1;
   //  Serial1.begin(250000, SERIAL_8N1, RXD1, TXD1);
   //  Serial2.begin(250000, SERIAL_8N1, RXD2, TXD2);
-  Serial.println("Begun");
+  SerialPtLnDebug("Begun");
+  Serial.println("working");
  
-  Serial.println("loop");
-
+  SerialPtLnDebug("loop");
+  SerialPtDebug("setup() running on core ");
+  SerialPtLnDebug(xPortGetCoreID());
 
   xTaskCreatePinnedToCore(
-      AnalogReadTaskcode, /* Function to implement the task */
-      "AnalogReadTask", /* Name of the task */
-      10000,  /* Stack size in words */
-      NULL,  /* Task input parameter */
-      1,  /* Priority of the task */
-      &AnalogReadTask,  /* Task handle. */
-      0); /* Core where the task should run */
+      AnalogReadTaskcode, // Function to implement the task //
+      "AnalogReadTask", // Name of the task //
+      100000,  // Stack size in words //
+      NULL,  // Task input parameter //
+      0,  // Priority of the task //
+      &AnalogReadTask,  // Task handle. //
+      0); // Core where the task should run //
 
+
+  SerialPtLnDebug("task pinned to core 0");
     ST=millis();
-    attachInterrupt(21, ZCISR, RISING);
+
+    attachInterrupt(21, ZCISR, FALLING);
+     SerialPtLnDebug("attaching timmers");
     timer = timerBegin(0, 80, true);
     timerAttachInterrupt(timer, &onTimerISR, false);
     timerAlarmWrite(timer, 1000000, false);
     timerAlarmEnable(timer);
-
-      timer1 = timerBegin(1, 80, true);
+ SerialPtLnDebug("timmer started");
+    timer1 = timerBegin(1, 80, true);
     timerAttachInterrupt(timer1, &ZXA, false);
     timerAlarmWrite(timer1, 1000000, false);
     timerAlarmEnable(timer);
-}
 
+
+IntVals[1]=23;
+IntVals[2]=50;
+IntVals[4]=200;
+IntVals[5]=0;
+IntVals[6]=10000000;
+Run(46);
+
+IntVals[1]=23;
+IntVals[2]=micros()+1000000;
+IntVals[3]=256;
+Run(45);
+
+}
+unsigned long loop_last, loop_time;
+float rolling_average=0;
 
 
 void loop() {  //Choose Serial1 or Serial2 as required
 //Serial.println("loop");
-  Serial_Parse();
+#ifdef DEBUG_serial
+  // protocols for debugging
+  loop_last=micros()-loop_time;
+  loop_time=micros();
+  rolling_average=rolling_average*99/100+float(loop_last)*1/100;
+#endif
+
+  Serial_Parse(); //~ 6uS
 
 
 //queloop
 
-for (int pwm_c=0;pwm_c<pwmChannelCur;pwm_c++){
-  if (micros()>pwmdata[pwm_c][6]){
-    ledcWrite(pwm_c,pwmdata[pwm_c][2]); // set the PWM of the channel
-    pwmdata[pwm_c][2]=pwmdata[pwm_c][3];// Set value to the default value
-    pwmdata[pwm_c][6]=micros()+pwmdata[pwm_c][4]; // sent the change time to the current time plus the max time
+for (int pwm_c = 0; pwm_c < pwmChannelCur; pwm_c++) {
+  if (micros() > pwmdata[pwm_c][6]) {
+    ledcWrite(pwm_c, pwmdata[pwm_c][2]);               // set the PWM of the channel
+    pwmdata[pwm_c][2] = pwmdata[pwm_c][3];             // Set value to the default value
+    pwmdata[pwm_c][6] = micros() + pwmdata[pwm_c][4];  // sent the change time to the current time plus the max time
   }
 }
-for (int zc_c=0;zc_c<Nchan;zc_c++){
-  if (micros()>ZeroCrossdata[zc_c][6]){
-          BrightSet[iu] = ZeroCrossdata[iu][2]/256*8160;
-        ZeroCrossdata[iu][2]=ZeroCrossdata[iu][3];
-        ZeroCrossdata[iu][5]=micros()+ZeroCrossdata[iu][5];
+for (int zc_c = 0; zc_c < Nchan; zc_c++) {
+  if (micros() > ZeroCrossdata[zc_c][5]) {
+    BrightSetD[zc_c] = double(ZeroCrossdata[zc_c][2])/ 256 * 8160;
+    ZeroCrossdata[zc_c][2] = ZeroCrossdata[zc_c][3];
+    ZeroCrossdata[zc_c][5] = micros() + ZeroCrossdata[zc_c][4];
+    sort_vals();
+    SerialPtLnDebug("Brightness: " +String(BrightSetD[zc_c]) + "  Next Val: " + String(ZeroCrossdata[zc_c][2]) + "  next time: " + String(ZeroCrossdata[zc_c][5] ));
+
+
+
   }
 }
 
+
+/*
+DpinOut
+// oid || pin || value || default_value || max_duration || Change time ||  Flag for software PWM ||  ticks last pwm || Update Time
+for (int dig_c=0;dig_c<DigitalPin;dig_c++){
+  if (micros()>pwmdata[pwm_c][5]){
+      if (pwmdata[pwm_c][5]==1){// Software PWM
+        if (micros()>pwmdata[pwm_c][8])
+
+          value=default_value;
+
+
+
+
+      }
+
+
+
+    ledcWrite(pwm_c,pwmdata[pwm_c][2]); // set the PWM of the channel
+    pwmdata[dig_c][2]=pwmdata[pwm_c][3];// Set value to the default value
+    pwmdata[pwm_c][6]=micros()+pwmdata[pwm_c][4]; // sent the change time to the current time plus the max time
+  }
+}
+*/
 
 
  if ((millis() - Time_NPT_LAST >= Time_NPT_ms) ){
 
- 
+IntVals[1]=23;
+IntVals[2]=micros();
+IntVals[3]++;
+if (IntVals[3]>256){IntVals[3]=0;}
+Run(45);
+
+
+     uptime.calculateUptime();    
+     Time_NPT_LAST=millis();
+     SerialPtLnDebug(" Loop Timming last: " + String(loop_last) + "us  Average: " + String(rolling_average)  + "us  Uptime: " + String(uptime.getTotalSeconds()) + "sec");
+      for (int i = 0; i < Nchan; i++) {
+     SerialPtLnDebug("Zero Cross  peak 2peal " +String(chac)+ " Drift " + String(drift) + " Correct: " + String(correction)+" pin: " +String(Pin[i]) + "  Bright: " + String(Bright[i]) + "  BrightSet: " + String(BrightSet[i]) + "  BrightSetD: " + String(BrightSetD[i]) + "  BrightSetDs: " + String(BrightSetDs[i]) );}
   }
 }

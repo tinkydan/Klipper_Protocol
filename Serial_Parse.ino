@@ -15,8 +15,11 @@ void Serial_Parse(){
     if (first_Byte) {
       bytePOS = 0;
       first_Byte=0;
-     // inByte = Serial.read();
-      inByte = Serial.parseInt();
+      #ifdef StringDebug
+        inByte = Serial.parseInt();
+      #else
+        inByte = Serial.read();
+      #endif
       
       Bytesall="SERIAL 1 " + String(inByte) + " ";
       Serial_MSG = millis();
@@ -26,7 +29,7 @@ void Serial_Parse(){
       //byte ByteMSG[inByte1 - 3];
       //byte ByteTrail[3];
       Message[bytePOS] = inByte;
-      Serial.println(Bytesall);
+      SerialPtLnDebug(Bytesall);
  
 
     } 
@@ -34,7 +37,7 @@ void Serial_Parse(){
         // Read timmed out
       first_Byte = 1;
         Process_MSG();//ByteMSG, ByteTrail, inByte1);
-         Serial.println(Bytesall);
+         SerialPtLnDebug(Bytesall);
       }
     else {
        
@@ -45,7 +48,7 @@ void Serial_Parse(){
 
          // Message[bytePOS] = Serial.read();
           Message[bytePOS] = Serial.parseInt();
-          Serial.println(String(Message[bytePOS]));
+          //Serial.println(String(Message[bytePOS]));
           //Bytesall+=String(Message[bytePOS]) + " ";
         } else {
          // Trailer[bytePOS] = Serial.read();
@@ -56,7 +59,7 @@ void Serial_Parse(){
 
         if (bytePOS >= (inByte - 1)) {
           first_Byte = 1;
-           Serial.println(Bytesall+String(millis()-Serial_MSG));
+           SerialPtLnDebug(Bytesall+String(millis()-Serial_MSG));
            
 //Serial.println(String(Message[0]) );
           Process_MSG();//ByteMSG, ByteTrail, inByte1);

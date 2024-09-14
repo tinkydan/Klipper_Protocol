@@ -24,9 +24,9 @@ void Process_MSG() {  //byte Message[], byte Trailer[],int lenh) {
   byte ByteComb[5];
   SequenceN = Message[1];
   uint16_t checkSum = calcCRC16(Message, Message[0] - 3, 0x1021, 0xFFFF, 0x0000, true, true);
-  Serial.println(checkSum, HEX);
+  //SerialPtLnDebug(checkSum, HEX);
   uint16_t combined = (Trailer[0] << 8) + Trailer[1];
-  Serial.println(String(SequenceN) + "   CheckSumCal:" + String(checkSum) + "   CheckSumComb:" + String(combined) + "   Trailer_0:" + String(Trailer[0]) + "   Trailer_1:" + String(Trailer[1]));
+  SerialPtLnDebug(String(SequenceN) + "   CheckSumCal:" + String(checkSum) + "   CheckSumComb:" + String(combined) + "   Trailer_0:" + String(Trailer[0]) + "   Trailer_1:" + String(Trailer[1]));
 
   if (checkSum == combined) {
 
@@ -59,7 +59,7 @@ void Process_MSG() {  //byte Message[], byte Trailer[],int lenh) {
       }
 
       Run(FunctionID);
-      Serial.println("Completed Parsing Message after " + String(millis() - Serial_MSG) + "ms");
+      SerialPtLnDebug("Completed Parsing Message after " + String(millis() - Serial_MSG) + "ms");
     }
 
 

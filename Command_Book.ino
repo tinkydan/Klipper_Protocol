@@ -1,16 +1,16 @@
 
-#define DEBUG_Command
 
 
 #ifdef DEBUG_Command
-#define SerialPtCom(x)  Serial.print (x)
-#define SerialPtLnCom(x)  Serial.println (x)
+#define SerialPtCom(x)  Serial2.print (x)
+#define SerialPtLnCom(x)  Serial2.println (x)
 #else
 #define SerialPtCom(x)  
 #define SerialPtLnCom(x)  
 #endif
 
 void Run(int Command){
+   int Ch_num;
 switch (Command){
 case 1:
   //__  identify   __//
@@ -68,7 +68,7 @@ case 4:
 
    setup_reply();
    EncodeIntoReply(-31);                        // Function ID
-   EncodeIntoReply(millis()/1000);              // Uptime time (seconds since restart)
+   EncodeIntoReply(uptime.getTotalSeconds());   // Uptime time (seconds since restart)
    EncodeIntoReply(micros());                   // Clock time
    finish_reply();
 
@@ -103,7 +103,7 @@ case 7:
    SerialPtLnCom("   |");
 
    setup_reply();
-   EncodeIntoReply(-29);                        // Function ID
+   EncodeIntoReply(-29);                        // Function ID aka 99
    EncodeIntoReply(is_config);                   // is configurred
    EncodeIntoReply(crc);                   // is crc of the configuration 
    EncodeIntoReply(is_shutdown);                   // is shutdown
@@ -170,6 +170,9 @@ case 13:
    value=IntVals[2];
    SerialPtCom("     value=" + String(value));
    SerialPtLnCom("   |");
+   pinMode(pin,OUTPUT);
+   digitalWrite(pin,value);
+
 
    break;
 
@@ -181,6 +184,14 @@ case 14:
    value=IntVals[2];
    SerialPtCom("     value=" + String(value));
    SerialPtLnCom("   |");
+     
+    for (int i=0;i<DigitalPin;i++){
+      if (oid==DpinOut[i][0]){
+        Ch_num=i;
+      }
+    }
+    DpinOut[Ch_num][5]=micros(); // Change time
+    DpinOut[Ch_num][2]=value; 
 
    break;
 
@@ -194,6 +205,15 @@ case 15:
    on_ticks=IntVals[3];
    SerialPtCom("     on_ticks=" + String(on_ticks));  //  ticks for software pwm otherwise 0 or 1 for value
    SerialPtLnCom("   |");
+   
+    for (int i=0;i<DigitalPin;i++){
+      if (oid==DpinOut[i][0]){
+        Ch_num=i;
+      }
+    }
+    DpinOut[Ch_num][5]=cycle_ticks; // Change time
+    DpinOut[Ch_num][2]=on_ticks; 
+
 
    break;
 
@@ -205,6 +225,14 @@ case 16:
    cycle_ticks=IntVals[2];
    SerialPtCom("     cycle_ticks=" + String(cycle_ticks));
    SerialPtLnCom("   |");
+   
+    for (int i=0;i<DigitalPin;i++){
+      if (oid==DpinOut[i][0]){
+        Ch_num=i;
+      }
+    }
+    DpinOut[Ch_num][6]=cycle_ticks; // Flag for software PWM
+    DpinOut[Ch_num][7]=micros(); // ticks last pwm
 
    break;
 
@@ -222,6 +250,17 @@ case 17:
    max_duration=IntVals[5];
    SerialPtCom("     max_duration=" + String(max_duration));
    SerialPtLnCom("   |");
+
+
+    DpinOut[DigitalPin][0]=oid;
+    DpinOut[DigitalPin][1]=pin;
+    DpinOut[DigitalPin][2]=value;
+    DpinOut[DigitalPin][3]=default_value;
+    DpinOut[DigitalPin][4]=max_duration;
+    DpinOut[DigitalPin][5]=0; // Change time
+    DpinOut[DigitalPin][6]=0; // Flag for software PWM
+    DpinOut[DigitalPin][7]=0; // ticks last pwm
+    DigitalPin++;
 
    break;
 
@@ -395,7 +434,7 @@ case 31:
 
 
    SampleTicks=IntVals[3];
-   int Ch_num;
+  
    SerialPtLnCom("query_analog_in");
    oid=IntVals[1];
    SerialPtCom("     oid=" + String(oid));
@@ -415,10 +454,11 @@ case 31:
    SerialPtCom("     range_check_count=" + String(range_check_count));
    SerialPtLnCom("   |");
     for (int i=0;i<37;i++){
-      if (oid==AnalogMetaData[i][1]){
+      if (oid==AnalogMetaData[i][2]){
         Ch_num=i;
       }
     }
+     SerialPtLnCom("Channel Number " + String(Ch_num));
     // Active // PIn Num // OID  // Index // Sample Ticks // Sample Count // Rest_Ticks //Min_value  // Max_Value //  Range Check Count
     AnalogMetaData[Ch_num][0]=1; // Active 
     AnalogMetaData[Ch_num][4]=IntVals[3]; // Sample Ticks 
@@ -427,6 +467,8 @@ case 31:
     AnalogMetaData[Ch_num][7]=IntVals[6]; // Min_value
     AnalogMetaData[Ch_num][8]=IntVals[7]; // Max_Value
     AnalogMetaData[Ch_num][9]=IntVals[8]; // Range Check Count
+
+     SerialPtLnCom(String(AnalogMetaData[Ch_num][0])+ "  " + String(AnalogMetaData[Ch_num][4])+ "  " + String(AnalogMetaData[Ch_num][5])+ "  " + String(AnalogMetaData[Ch_num][6])+ "  " + String(AnalogMetaData[Ch_num][7])+ "  " + String(AnalogMetaData[Ch_num][8]));
 
 
    break;
@@ -437,6 +479,7 @@ case 32:
    oid=IntVals[1];
    SerialPtCom("     oid=" + String(oid));
    pin=IntVals[2];
+   if(oid==19){pin=34;}
    SerialPtCom("     pin=" + String(pin));
    SerialPtLnCom("   |");
    AnalogMetaData[analogChannels][1]=pin; // active  // PIn Num // OID  // Index // 
@@ -600,7 +643,7 @@ case 44:
     for (int iu=0;iu<Nchan;iu++){
       if (oid==pwmdata[iu][0]){
 
-        BrightSet[iu] = value/256*8160;
+        BrightSet[iu] = double(value)/256*8160;
         ZeroCrossdata[iu][2]=ZeroCrossdata[iu][3];
         ZeroCrossdata[iu][5]=micros()+ZeroCrossdata[iu][5];
         
@@ -628,9 +671,10 @@ case 45:
       }
     }
     for (int iu=0;iu<Nchan;iu++){
-      if (oid==pwmdata[iu][0]){
+      if (oid==ZeroCrossdata[iu][0]){
         ZeroCrossdata[iu][2]=value;
         ZeroCrossdata[iu][5]=clockint;
+        SerialPtLnCom("iu " + String(iu) + " Value " + String(value) + " clock " + String(clockint));
         break;
       }
     }
@@ -672,15 +716,20 @@ case 46:
       
       }
       else if (pin<60) {// Assign to a zero cross
-        BrightSet[Nchan] = value/256*8160;
-        PinSet[Nchan] = pin;
+        BrightSetD[Nchan] = value/256*8160;
+        GATE[Nchan] =GATE_MAP[ pin-50];
+        pinMode(GATE[Nchan], OUTPUT);
+       // memcpy(Bright, BrightSet, Nchan*4);
+        sort_vals();
         ZeroCrossdata[Nchan][0]=oid;
         ZeroCrossdata[Nchan][1]=micros();
         ZeroCrossdata[Nchan][2]=value;
         ZeroCrossdata[Nchan][3]=default_value;
         ZeroCrossdata[Nchan][4]=max_duration;
       // ZeroCrossdata[Nchan][5]=Change_ticks;
+      SerialPtLnCom(" Zero Cross Setup-> OID: " +String(oid) +"  Pin:" + String(GATE[Nchan]) +" Cur time: " + String(ZeroCrossdata[Nchan][1]) + " Value: " + String(ZeroCrossdata[Nchan][2])+ " Def Val: " + String(ZeroCrossdata[Nchan][3])+ " Chang T: " + String(ZeroCrossdata[Nchan][4]) + "  Chan num:" + String(Nchan));
         Nchan++;
+
 
       }
 
@@ -1268,7 +1317,7 @@ case 92:
    //__  reset   __//
    SerialPtLnCom("reset");
    SerialPtLnCom("   |");
-
+   ESP.restart();
    break;
 
 case 93:
