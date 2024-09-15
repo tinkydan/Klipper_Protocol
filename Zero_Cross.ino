@@ -46,12 +46,13 @@ void ICACHE_RAM_ATTR ZCISR() {  //zero cross detect
     ZXV = ch;
     chac = micros() - ZX;
     drift=chac-16666;
+        if (abs(drift) > 1000){drift=0;}
     timerWrite(timer1, 0);
     timerAlarmWrite(timer1, 1800-drift, false);  // S
     timerAlarmEnable(timer1);
-    correction=long(float(correction)*0.9+float(drift)*.1);
+    correction=long(float(correction)*0.99+float(drift)*.01);
     if (abs(correction)>100){correction=0;}
-    ZX = micros()+correction;
+    ZX = micros()-correction;
     refire_count = 1;
      //for (int i = 0; i < Nchan; i++) {
      //
