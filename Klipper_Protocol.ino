@@ -319,7 +319,7 @@ double BrightSetDs[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 
   // Writes the current settings
-signed long long correction=0;
+volatile float correction=0;
 signed long long drift=0;
 signed long long ch;
 signed long long chac;
