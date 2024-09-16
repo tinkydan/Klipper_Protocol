@@ -4,12 +4,24 @@
 
 void sort_vals (){
       for (int i = 0; i < Nchan; i++) {
-      PinSet[i] = GATE[i];  // Reset the pin order so they can be resorted based on duty cycle
+      PinSethold[i] = GATE[i];  // Reset the pin order so they can be resorted based on duty cycle
     }
 
-    sort(BrightSetD, PinSet, Nchan);  // Sorts the Brightness and the pin numbers according to the channel that has the highest duty cycle
+  for (int i = 0; i < Nchan; i++) {
+    SerialPtDebug(" Pin Presort: " + String(PinSethold[i]));
+    BrightSetDs[i]=BrightSetD[i];
+  }
+  SerialPtDebug(" \n");
+
+
+
+    sort(BrightSetDs, PinSethold, Nchan);  // Sorts the Brightness and the pin numbers according to the channel that has the highest duty cycle
     for (int i = 0; i < Nchan; i++) {
       BrightSet[i] = BrightSetDs[i];  // Rewrites as an integer
+      PinSet[i]=PinSethold[i];     
+    }
+    for (int i = 0; i < Nchan; i++) {
+         SerialPtLnDebug("  Bright unsorted: "  +  String(BrightSetD[i])  + "Pin Set Sorted: " + String(PinSet[i]) + "  Brightness sort " + String(BrightSetDs[i]));
     }
 }
 
@@ -26,11 +38,14 @@ void sort(double a[], int pos[], int size) {
       }
     }
   }
-  for (int i = 0; i < Nchan; i++) {
+  /*
+  for (int i = 0; i < size; i++) {
+    SerialPtDebug(" Pin Presort: " + String(PinSet[i]));
   PinSet[i]=pos[i];
-   BrightSetDs[i]=a[i];
-
+  BrightSetDs[i]=a[i];
+  SerialPtLnDebug("  Bright unsorted: "  +  String(BrightSetD[i])  + "Pin Set Sorted: " + String(PinSet[i]) + "  Brightness sort " + String(BrightSetDs[i]));
   }
+  */
 }
 
 
@@ -45,14 +60,14 @@ void ICACHE_RAM_ATTR ZCISR() {  //zero cross detect
   if (ch > 8000) {
     ZXV = ch;
     chac = micros() - ZX;
-    drift=chac-16666;
-        if (abs(drift) > 1000){drift=0;}
+    //drift=chac-16666;
+      // if (abs(drift) > 1000){drift=0;}
     timerWrite(timer1, 0);
-    timerAlarmWrite(timer1, 1800-drift, false);  // S
+    timerAlarmWrite(timer1, 1800, false);  // S
     timerAlarmEnable(timer1);
-    correction=long(float(correction)*0.99+float(drift)*.01);
-    if (abs(correction)>100){correction=0;}
-    ZX = micros()-correction;
+   // correction=correction*0.99+float(drift)*.01;
+    //if (abs(correction)>100){correction=0;}
+    ZX = micros();//-correction;
     refire_count = 1;
      //for (int i = 0; i < Nchan; i++) {
      //

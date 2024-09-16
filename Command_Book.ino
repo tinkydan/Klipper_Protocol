@@ -641,7 +641,7 @@ case 44:
       }
     }
     for (int iu=0;iu<Nchan;iu++){
-      if (oid==pwmdata[iu][0]){
+      if (oid==ZeroCrossdata[iu][0]){
 
         BrightSet[iu] = double(value)/256*8160;
         ZeroCrossdata[iu][2]=ZeroCrossdata[iu][3];
@@ -661,6 +661,8 @@ case 45:
    SerialPtCom("     clockint=" + String(clockint));
    value=IntVals[3];
    SerialPtCom("     value=" + String(value));
+   
+   SerialPtCom("     nchan=" + String(Nchan) );
    SerialPtLnCom("   |");
     for (int iu=0;iu<pwmChannelCur;iu++){
       if (oid==pwmdata[iu][0]){
@@ -698,6 +700,7 @@ case 46:
    max_duration=IntVals[6];
    SerialPtCom("     max_duration=" + String(max_duration));
    SerialPtLnCom("   |");
+ 
 
 
     if (pin<50)  { //Pin 50 - 59 are virtual zeros cross pins

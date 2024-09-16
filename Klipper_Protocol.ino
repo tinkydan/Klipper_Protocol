@@ -293,8 +293,8 @@ byte ident[2902]={0x78,0xda,0x9d,0x19,0x6b,0x6f,0xdb,0xc8,0xf1,0xaf,0xec,0x9,0x8
 
 
 // PWM function data 
-unsigned long pwmdata[16][6];// oid || pin || value || default_value || max_duration || clock || change at tick 
-unsigned long ZeroCrossdata[10][5];// oid || clock || value || default_value || max_duration ||  change at tick 
+unsigned long pwmdata[16][7];// oid || pin || value || default_value || max_duration || clock || change at tick 
+unsigned long ZeroCrossdata[10][6];// oid || clock || value || default_value || max_duration ||  change at tick 
 unsigned long DpinOut[50][8];// oid || pin || value || default_value || max_duration || Change time ||  Flag for software PWM ||  ticks last pwm
 int pwmChannelCur;
 int DigitalPin;
@@ -306,6 +306,7 @@ int DigitalPin;
 int Nchan = 0;
 int BrightSet[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 int PinSet[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+int PinSethold[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 int ZN = 0;
 int divS[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -324,13 +325,13 @@ signed long long drift=0;
 signed long long ch;
 signed long long chac;
 
-int Pin[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+volatile int Pin[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-int PIN_LAST[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-int GATE[] ={ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-int GATE_MAP[] = { 23, 16, 17, 18, 19, 4, 13, 12, 27, 5 };
+volatile int PIN_LAST[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+volatile int GATE[] ={ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+volatile int GATE_MAP[] = { 23, 16, 17, 18, 19, 4, 13, 12, 27, 5 };
 //int THERM[] = {36, 39, 34, 35, 32, 33, 25, 26, 14, 15};
-int CUR_CHAN = 0;
+volatile int CUR_CHAN = 0;
 
 volatile unsigned long TT=0;
 
@@ -347,9 +348,11 @@ int lst_t_set;
 
 ///___________________________________________________
 //+++++++++++++++++++++++++++++++++++++++++++++++++++
-
-
-   unsigned long Time_NPT_ms = 500; // NPT read /every 100mins
+   unsigned long Time_NPT_ms3 = 1000; // NPT read /every 100mins
+unsigned long Time_NPT_LAST3 = 0;
+   unsigned long Time_NPT_ms2 = 2000; // NPT read /every 100mins
+unsigned long Time_NPT_LAST2 = 0;
+   unsigned long Time_NPT_ms = 5000; // NPT read /every 100mins
 unsigned long Time_NPT_LAST = 0;
 long fm;
 /*int bytv
@@ -368,7 +371,7 @@ portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
 hw_timer_t* timer1 = NULL;
 portMUX_TYPE timerMux1 = portMUX_INITIALIZER_UNLOCKED;
 
-
+int b1,b2,b3;
 
 //HardwareSerial Serial1(1);
 //HardwareSerial Serial2(1);
@@ -431,7 +434,7 @@ first_Byte=1;
 
   SerialPtLnDebug("task pinned to core 0");
     ST=millis();
-
+delay(10);
     attachInterrupt(21, ZCISR, FALLING);
      SerialPtLnDebug("attaching timmers");
     timer = timerBegin(0, 80, true);
@@ -453,6 +456,31 @@ IntVals[6]=10000000;
 Run(46);
 
 IntVals[1]=23;
+IntVals[2]=micros()+1000000;
+IntVals[3]=256;
+Run(45);
+
+
+IntVals[1]=24;
+IntVals[2]=53;
+IntVals[4]=200;
+IntVals[5]=0;
+IntVals[6]=10000000;
+Run(46);
+
+IntVals[1]=24;
+IntVals[2]=micros()+1000000;
+IntVals[3]=256;
+Run(45);
+
+IntVals[1]=25;
+IntVals[2]=54;
+IntVals[4]=200;
+IntVals[5]=0;
+IntVals[6]=10000000;
+Run(46);
+
+IntVals[1]=25;
 IntVals[2]=micros()+1000000;
 IntVals[3]=256;
 Run(45);
@@ -488,9 +516,9 @@ for (int zc_c = 0; zc_c < Nchan; zc_c++) {
     BrightSetD[zc_c] = double(ZeroCrossdata[zc_c][2])/ 256 * 8160;
     ZeroCrossdata[zc_c][2] = ZeroCrossdata[zc_c][3];
     ZeroCrossdata[zc_c][5] = micros() + ZeroCrossdata[zc_c][4];
-    sort_vals();
+   
     SerialPtLnDebug("Brightness: " +String(BrightSetD[zc_c]) + "  Next Val: " + String(ZeroCrossdata[zc_c][2]) + "  next time: " + String(ZeroCrossdata[zc_c][5] ));
-
+ sort_vals();
 
 
   }
@@ -520,14 +548,34 @@ for (int dig_c=0;dig_c<DigitalPin;dig_c++){
   }
 }
 */
+ if ((millis() - Time_NPT_LAST2 >= Time_NPT_ms2) ){
+Time_NPT_LAST2=millis();
+IntVals[1]=24;
+IntVals[2]=micros();
+b2++;
+if (b2>256){b2=0;}
+IntVals[3]=b2;
+Run(45);
 
+ }
+ if ((millis() - Time_NPT_LAST3 >= Time_NPT_ms3) ){
+Time_NPT_LAST3=millis();
+IntVals[1]=25;
+IntVals[2]=micros();
+b3++;
+if (b3>256){b3=0;}
+IntVals[3]=b3;
+Run(45);
+
+ }
 
  if ((millis() - Time_NPT_LAST >= Time_NPT_ms) ){
 
 IntVals[1]=23;
 IntVals[2]=micros();
-IntVals[3]++;
-if (IntVals[3]>256){IntVals[3]=0;}
+b1++;
+if (b1>256){b1=0;}
+IntVals[3]=b1;
 Run(45);
 
 
