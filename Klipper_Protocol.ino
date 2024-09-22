@@ -182,108 +182,108 @@ byte ident[2902]={0x78,0xda,0x9d,0x19,0x6b,0x6f,0xdb,0xc8,0xf1,0xaf,0xec,0x9,0x8
 0x8c,0x2d,0xcf,0x6c,0x5f,0x7a,0x78,0x66,0xea,0xd9,0x5e,0xa8,0x42,0xa5,0xaa,0x63,0xe9,0xa7,0xa6,0x61,0x14,0x2a,0x2,0x8,0x65,0xfa,0x87,0x73,0x8,0x65,0x8f,0xf3,0x93,0x20,0x3c,
 0x99,0x83,0x9f,0x2e,0x8e,0xb7,0xc5,0xb2,0x58,0xcf,0xd7,0x61,0x36,0xfb,0xf6,0x3f,0xbf,0xb3,0x86,0x35};
 
-   int32_t offset;
-   int32_t count;
-   int32_t crc;
-   int32_t order;
-   int32_t addr;
-   int32_t val;
-   int32_t pin;
-   int32_t value;
-   int32_t oid;
-   int32_t clockint;
-   int32_t on_ticks;
-   int32_t cycle_ticks;
-   int32_t default_value;
-   int32_t max_duration;
-   int32_t trsync_oid;
-   int32_t dir;
-   int32_t interval;
-   int32_t add;
-   int32_t step_pin;
-   int32_t dir_pin;
-   int32_t invert_step;
-   int32_t step_pulse_ticks;
-   int32_t sample_ticks;
-   int32_t sample_count;
-   int32_t rest_ticks;
-   int32_t pin_value;
-   int32_t trigger_reason;
-   int32_t pull_up;
-   int32_t reason;
-   int32_t report_clock;
-   int32_t report_ticks;
-   int32_t expire_reason;
-   int32_t min_value;
-   int32_t max_value;
-   int32_t range_check_count;
-   int32_t spi_oid;
-   int32_t spi_bus;
-   int32_t mode;
-   int32_t rate;
-   int32_t cs_active_high;
-   int32_t read_len;
-   int32_t i2c_bus;
-   int32_t address;
-   int32_t retransmit_count;
-   int32_t invert;
-   int32_t pos;
-   int32_t button_count;
-   int32_t readint;
-   int32_t rx_pin;
-   int32_t tx_pin;
-   int32_t bit_time;
-   int32_t data_size;
-   int32_t bit_max_ticks;
-   int32_t reset_min_ticks;
-   int32_t poll_ticks;
-   int32_t cs_pin;
-   int32_t sclk_pin;
-   int32_t sid_pin;
-   int32_t sync_delay_ticks;
-   int32_t cmd_delay_ticks;
-   int32_t rs_pin;
-   int32_t e_pin;
-   int32_t d4_pin;
-   int32_t d5_pin;
-   int32_t d6_pin;
-   int32_t d7_pin;
-   int32_t delay_ticks;
-   int32_t miso_pin;
-   int32_t mosi_pin;
-   int32_t scl_pin;
-   int32_t sda_pin;
-   int32_t max_invalid_count;
-   int32_t thermocouple_type;
-   int32_t time_shift;
-   int32_t spi_angle_type;
-   int32_t i2c_oid;
-   int32_t threshold;
-   int32_t error_reason;
-   int32_t intb_pin;
-   int32_t gain_channel;
-   int32_t dout_pin;
-   int32_t data_ready_pin;
-   int32_t static_string_id;
-   int32_t sum;
-   int32_t sumsq;
-   int32_t high;
-   int32_t is_config;
-   int32_t is_shutdown;
-   int32_t move_count;
-   int32_t homing;
-   int32_t next_clock;
-   int32_t can_trigger;
-   int32_t ack_count;
-   int32_t success;
-   int32_t count_clock;
-   int32_t fault;
-   int32_t trigger_clock;
-   int32_t query_ticks;
-   int32_t next_sequence;
-   int32_t buffered;
-   int32_t possible_overflows;
-   int32_t sequence;
+   int64_t offset;
+   int64_t count;
+   int64_t crc;
+   int64_t order;
+   int64_t addr;
+   int64_t val;
+   int64_t pin;
+   int64_t value;
+   int64_t oid;
+   int64_t clockint;
+   int64_t on_ticks;
+   int64_t cycle_ticks;
+   int64_t default_value;
+   int64_t max_duration;
+   int64_t trsync_oid;
+   int64_t dir;
+   int64_t interval;
+   int64_t add;
+   int64_t step_pin;
+   int64_t dir_pin;
+   int64_t invert_step;
+   int64_t step_pulse_ticks;
+   int64_t sample_ticks;
+   int64_t sample_count;
+   int64_t rest_ticks;
+   int64_t pin_value;
+   int64_t trigger_reason;
+   int64_t pull_up;
+   int64_t reason;
+   int64_t report_clock;
+   int64_t report_ticks;
+   int64_t expire_reason;
+   int64_t min_value;
+   int64_t max_value;
+   int64_t range_check_count;
+   int64_t spi_oid;
+   int64_t spi_bus;
+   int64_t mode;
+   int64_t rate;
+   int64_t cs_active_high;
+   int64_t read_len;
+   int64_t i2c_bus;
+   int64_t address;
+   int64_t retransmit_count;
+   int64_t invert;
+   int64_t pos;
+   int64_t button_count;
+   int64_t readint;
+   int64_t rx_pin;
+   int64_t tx_pin;
+   int64_t bit_time;
+   int64_t data_size;
+   int64_t bit_max_ticks;
+   int64_t reset_min_ticks;
+   int64_t poll_ticks;
+   int64_t cs_pin;
+   int64_t sclk_pin;
+   int64_t sid_pin;
+   int64_t sync_delay_ticks;
+   int64_t cmd_delay_ticks;
+   int64_t rs_pin;
+   int64_t e_pin;
+   int64_t d4_pin;
+   int64_t d5_pin;
+   int64_t d6_pin;
+   int64_t d7_pin;
+   int64_t delay_ticks;
+   int64_t miso_pin;
+   int64_t mosi_pin;
+   int64_t scl_pin;
+   int64_t sda_pin;
+   int64_t max_invalid_count;
+   int64_t thermocouple_type;
+   int64_t time_shift;
+   int64_t spi_angle_type;
+   int64_t i2c_oid;
+   int64_t threshold;
+   int64_t error_reason;
+   int64_t intb_pin;
+   int64_t gain_channel;
+   int64_t dout_pin;
+   int64_t data_ready_pin;
+   int64_t static_string_id;
+   int64_t sum;
+   int64_t sumsq;
+   int64_t high;
+   int64_t is_config;
+   int64_t is_shutdown;
+   int64_t move_count;
+   int64_t homing;
+   int64_t next_clock;
+   int64_t can_trigger;
+   int64_t ack_count;
+   int64_t success;
+   int64_t count_clock;
+   int64_t fault;
+   int64_t trigger_clock;
+   int64_t query_ticks;
+   int64_t next_sequence;
+   int64_t buffered;
+   int64_t possible_overflows;
+   int64_t sequence;
 
    String data;
    String shutdown_msg;
@@ -337,6 +337,13 @@ volatile int GATE_MAP[] = { 23, 16, 17, 18, 19, 4, 13, 12, 27, 5 };
 //int THERM[] = {36, 39, 34, 35, 32, 33, 25, 26, 14, 15};
 volatile int CUR_CHAN = 0;
 
+        // arrays will be created that tell the interupt functions how long to set the timmer and if mutliple valuse are to be set simtoniouly
+volatile int Nchan_on=0; // Number of zero cross shannels that are on (excludes the channels under 50 brightness)
+volatile int Nchan_full=0; // number of channels at or above 8160 brightness
+volatile int timmer_width[11]; // Number of micros scenond untill the next function trriger is required
+volatile int timmer_width_temp[11]; // Number of micros scenond untill the next function trriger is required
+volatile bool next_same[10]={0,0,0,0,0,0,0,0,0,0}; // boolian to determin if the next channel is at the same brightness setting
+
 volatile unsigned long TT=0;
 
 volatile unsigned long ZX=0;
@@ -348,7 +355,8 @@ volatile int refire_count = 0;
 int timer1_write_val;
 float brightnessF = 5000;
 int lst_t_set;
-
+unsigned long trec;
+unsigned long tstart;
 
 ///___________________________________________________
 //+++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -356,7 +364,9 @@ int lst_t_set;
 unsigned long Time_NPT_LAST3 = 0;
    unsigned long Time_NPT_ms2 = 2000; // NPT read /every 100mins
 unsigned long Time_NPT_LAST2 = 0;
-   unsigned long Time_NPT_ms = 5000; // NPT read /every 100mins
+   unsigned long Time_NPT_ms1 = 3000; // NPT read /every 100mins
+unsigned long Time_NPT_LAST1 = 0;
+   unsigned long Time_NPT_ms = 4000; // NPT read /every 100mins
 unsigned long Time_NPT_LAST = 0;
 long fm;
 /*int bytv
@@ -367,7 +377,7 @@ long fm;
  * U2UXD is unused and can be used for your projects.
  * 
 */
-int32_t Serial_MSG;
+int64_t Serial_MSG;
 unsigned long ST=0;
 hw_timer_t * timer = NULL;
 portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
@@ -384,7 +394,7 @@ int b1,b2,b3;
 //#define RXD2 5
 //#define TXD2 4
 
-// below script redefines the bitRead and bitWrite functions to be compatible with int64_t valuse so that a uint32_t value cane be properly encoded
+// below script redefines the bitRead and bitWrite functions to be compatible with int64_t valuse so that a uint64_t value cane be properly encoded
 TaskHandle_t AnalogReadTask;
 
 
@@ -439,6 +449,7 @@ first_Byte=1;
   SerialPtLnDebug("task pinned to core 0");
     ST=millis();
 delay(10);
+
     attachInterrupt(21, ZCISR, FALLING);
      SerialPtLnDebug("attaching timmers");
     timer = timerBegin(0, 80, true);
@@ -473,6 +484,20 @@ IntVals[6]=10000000;
 Run(46);
 
 IntVals[1]=24;
+IntVals[2]=micros()+1000000;
+IntVals[3]=256;
+Run(45);
+
+
+
+IntVals[1]=26;
+IntVals[2]=55;
+IntVals[4]=200;
+IntVals[5]=0;
+IntVals[6]=10000000;
+Run(46);
+
+IntVals[1]=26;
 IntVals[2]=micros()+1000000;
 IntVals[3]=256;
 Run(45);
@@ -552,6 +577,18 @@ for (int dig_c=0;dig_c<DigitalPin;dig_c++){
   }
 }
 */
+
+ if ((millis() - Time_NPT_LAST1 >= Time_NPT_ms1) ){
+Time_NPT_LAST1=millis();
+IntVals[1]=26;
+IntVals[2]=micros();
+b3++;
+if (b3>256){b3=0;}
+IntVals[3]=b3;
+Run(45);
+
+ }
+
  if ((millis() - Time_NPT_LAST2 >= Time_NPT_ms2) ){
 Time_NPT_LAST2=millis();
 IntVals[1]=24;
@@ -585,7 +622,7 @@ Run(45);
 
      uptime.calculateUptime();    
      Time_NPT_LAST=millis();
-     SerialPtLnDebug(" Loop Timming last: " + String(loop_last) + "us  Average: " + String(rolling_average)  + "us  Uptime: " + String(uptime.getTotalSeconds()) + "sec");
+     SerialPtLnDebug(" Loop Timming last: " + String(loop_last) + "us  Average: " + String(rolling_average)  + "us  Uptime: " + String(uptime.getTotalSeconds()) + "sec" + "timmer recal " + String(trec));
       for (int i = 0; i < Nchan; i++) {
      SerialPtLnDebug("Zero Cross  peak 2peal " +String(chac)+ " Drift " + String(drift) + " Correct: " + String(correction)+" pin: " +String(Pin[i]) + "  Bright: " + String(Bright[i]) + "  BrightSet: " + String(BrightSet[i]) + "  BrightSetD: " + String(BrightSetD[i]) + "  BrightSetDs: " + String(BrightSetDs[i]) );}
   }
