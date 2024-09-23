@@ -10,6 +10,7 @@ void Serial_Parse(){
   if (Serial.available()) {
     if  ((millis() - Serial_MSG) > MSG_Timeout){
     first_Byte = 1;
+   
    // Serial.println("settign new serial ");
 }
     if (first_Byte) {
@@ -21,11 +22,15 @@ void Serial_Parse(){
         inByte = Serial.read();
       #endif
       
-      Bytesall="SERIAL 1 " + String(inByte) + " ";
+      Bytesall="SERIAL 1 first byte " + String(inByte) + " ";
       Serial_MSG = millis();
       breakbreak = 0;
       //int inByte1 = inByte;
+
       if (inByte > 64) { inByte = 64; }
+      if (inByte <5){
+        first_Byte=1;// not an acceptable length
+      }
       //byte ByteMSG[inByte1 - 3];
       //byte ByteTrail[3];
       Message[bytePOS] = inByte;
@@ -47,19 +52,28 @@ void Serial_Parse(){
         if (bytePOS <= (inByte - 4)) {
 
          // Message[bytePOS] = Serial.read();
+          #ifdef StringDebug
           Message[bytePOS] = Serial.parseInt();
+          #else
+          Message[bytePOS] = Serial.read();
+          #endif
+
           //Serial.println(String(Message[bytePOS]));
-          //Bytesall+=String(Message[bytePOS]) + " ";
+          Bytesall+=String(Message[bytePOS]) + " ";
         } else {
          // Trailer[bytePOS] = Serial.read();
+          #ifdef StringDebug
           Trailer[bytePOS-inByte+3] = Serial.parseInt();
+           #else
+           Trailer[bytePOS-inByte+3] = Serial.read();
+           #endif
           //Serial.println(String(Trailer[bytePOS-inByte+3])+ "in byte " + String(bytePOS));
-          //Bytesall+=String( Trailer[bytePOS-inByte+3]) + " ";
+          Bytesall+=String( Trailer[bytePOS-inByte+3]) + " ";
         }
 
         if (bytePOS >= (inByte - 1)) {
           first_Byte = 1;
-           SerialPtLnDebug(Bytesall+String(millis()-Serial_MSG));
+           SerialPtLnDebug(Bytesall);
            
 //Serial.println(String(Message[0]) );
           Process_MSG();//ByteMSG, ByteTrail, inByte1);
