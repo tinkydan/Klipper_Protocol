@@ -28,7 +28,7 @@ void Serial_Parse(){
       //int inByte1 = inByte;
 
       if (inByte > 64) { inByte = 64; }
-      if (inByte <5){
+      if ((inByte <5)||(inByte==126)){
         first_Byte=1;// not an acceptable length
       }
       //byte ByteMSG[inByte1 - 3];

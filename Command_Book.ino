@@ -68,7 +68,10 @@ case 4:
 
    setup_reply();
    EncodeIntoReply(-31);                        // Function ID
-   EncodeIntoReply(uptime.getTotalSeconds());   // Uptime time (seconds since restart)
+   int upt;
+   upt=uptime.getTotalSeconds();
+   SerialPtLnCom("Current Uptime " + String(upt));
+   EncodeIntoReply(upt);   // Uptime time (seconds since restart)
    EncodeIntoReply(micros());                   // Clock time
    finish_reply();
 

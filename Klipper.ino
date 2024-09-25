@@ -4,9 +4,9 @@
 //#define DEBUG_Command
 
 
-#ifdef DEBUG_Command
-#define SerialPtVQL(x) Serial1.print(x)
-#define SerialPtLnVQL(x) Serial1.println(x)
+#ifdef DEBUG_Command_VQL
+#define SerialPtVQL(x) Serial2.print(x)
+#define SerialPtLnVQL(x) Serial2.println(x)
 #else
 #define SerialPtVQL(x)
 #define SerialPtLnVQL(x)
@@ -93,10 +93,13 @@ void EncodeVLQ(int64_t Value) {
 
 void EncodeIntoReply(int64_t Value){
   EncodeVLQ(Value);
-  for (int ui=0; ui<=VQL_len ; ui++){
+  SerialPtDebug("Int:" + String(Value) +" Was Encoded as follows -> ") ;
+  for (int ui=0; ui<VQL_len ; ui++){
     reply[rpl_j]=Encoded[ui];
+    SerialPtDebug(" " + String(reply[rpl_j]));
     rpl_j++;
   }
+  SerialPtLnDebug() ;
 }
 
 
@@ -139,16 +142,16 @@ void finish_reply() {
   rpl_j++;
 
   for (int i = 0; i < rpl_j; i++) {
+        SerialPtCom(String(reply[i]) + " ");
   #ifdef StringDebug
     Serial.print(String(reply[i]) + " ");
-    SerialPtCom(String(reply[i]) + " ");
   #else
-    Serial.print(reply[i]);
+    Serial.write(reply[i]);
   #endif
   }
   #ifdef StringDebug
   Serial.println("");
-  SerialPtLnCom("");
   #endif
+   SerialPtLnCom("");
   responding=0;
 }
