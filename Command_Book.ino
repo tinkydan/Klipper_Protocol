@@ -110,7 +110,7 @@ case 7:
    EncodeIntoReply(is_config);                   // is configurred
    EncodeIntoReply(crc);                   // is crc of the configuration 
    EncodeIntoReply(is_shutdown);                   // is shutdown
-   EncodeIntoReply(move_count);                   // move count
+   EncodeIntoReply(1024);                   // move count!   move_count
    finish_reply();
    
 
