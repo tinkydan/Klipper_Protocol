@@ -3,8 +3,6 @@
 
 void Serial_Parse(){
   int inByte1;
-  
-
      //.   byte ByteMSG[64 - 3];
     //  byte ByteTrail[3];
   if (Serial.available()) {
@@ -32,15 +30,17 @@ void Serial_Parse(){
         first_Byte=1;// not an acceptable length
       }
       if ((inByte > 64)&&(inByte!=126)){
+        SerialPtDebug("Dumping bad values until 126\n     ->");
          while (Serial.available()) {
           inByte = Serial.read();
+          SerialPtDebug(inByte);
             if (inByte==126){
               first_Byte=1;
               break;
             }
         }
+        SerialPtLnDebug();
         // Read until 126 is encountered or serial is not avalible
-        SerialPtLnDebug("Dumping bad values until 126");
       }
       //byte ByteMSG[inByte1 - 3];
       //byte ByteTrail[3];
@@ -88,6 +88,19 @@ void Serial_Parse(){
            
 //Serial.println(String(Message[0]) );
           Process_MSG();//ByteMSG, ByteTrail, inByte1);
+
+      if (Trailer[bytePOS-inByte+3]!=126) {
+      SerialPtDebug("Dumping values until 126\n     ->");
+         while (Serial.available()) {
+          inByte = Serial.read();
+          SerialPtDebug(inByte);
+            if (inByte==126){
+              break;
+            }
+        }
+        SerialPtLnDebug();
+        // Read until 126 is encountered or serial is not avalible
+      }
          
         }
       }
