@@ -27,9 +27,20 @@ void Serial_Parse(){
       breakbreak = 0;
       //int inByte1 = inByte;
 
-      if (inByte > 64) { inByte = 64; }
+      //if (inByte > 64) { inByte = 64; }
       if ((inByte <5)||(inByte==126)){
         first_Byte=1;// not an acceptable length
+      }
+      if ((inByte > 64)&&(inByte!=126)){
+         while (Serial.available()) {
+          inByte = Serial.read();
+            if (inByte==126){
+              first_Byte=1;
+              break;
+            }
+        }
+        // Read until 126 is encountered or serial is not avalible
+        SerialPtLnDebug("Dumping bad values until 126");
       }
       //byte ByteMSG[inByte1 - 3];
       //byte ByteTrail[3];
