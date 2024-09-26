@@ -93,13 +93,13 @@ void EncodeVLQ(int64_t Value) {
 
 void EncodeIntoReply(int64_t Value){
   EncodeVLQ(Value);
-  SerialPtDebug("Int:" + String(Value) +" Was Encoded as follows -> ") ;
+  //SerialPtDebug("Int:" + String(Value) +" Was Encoded as follows -> ") ;
   for (int ui=0; ui<VQL_len ; ui++){
     reply[rpl_j]=Encoded[ui];
-    SerialPtDebug(" " + String(reply[rpl_j]));
+    //SerialPtDebug(" " + String(reply[rpl_j]));
     rpl_j++;
   }
-  SerialPtLnDebug() ;
+ // SerialPtLnDebug() ;
 }
 
 

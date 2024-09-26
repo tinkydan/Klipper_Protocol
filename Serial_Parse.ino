@@ -33,7 +33,7 @@ void Serial_Parse(){
         SerialPtDebug("Dumping bad values until 126\n     ->");
          while (Serial.available()) {
           inByte = Serial.read();
-          SerialPtDebug(inByte);
+          SerialPtDebug(String(inByte) + " ");
             if (inByte==126){
               first_Byte=1;
               break;
@@ -93,7 +93,7 @@ void Serial_Parse(){
       SerialPtDebug("Dumping values until 126\n     ->");
          while (Serial.available()) {
           inByte = Serial.read();
-          SerialPtDebug(inByte);
+          SerialPtDebug(String(inByte) + " ");
             if (inByte==126){
               break;
             }

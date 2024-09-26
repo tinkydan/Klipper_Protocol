@@ -1,13 +1,13 @@
-#define DEBUG_Command
-#define DEBUG_serial
+//#define DEBUG_Command
+// /#define DEBUG_serial
 //#define StringDebug
 
 #ifdef DEBUG_serial
 #define SerialPtDebug(x)  Serial2.print (x)
 #define SerialPtLnDebug(x)  Serial2.println (x)
 #else
-#define SerialPtCom(x)  
-#define SerialPtLnCom(x)  
+#define SerialPtDebug(x) //
+#define SerialPtLnDebug(x) //
 #endif
 
 #define RXD2 16
@@ -20,7 +20,7 @@ Uptime uptime;
 
 // 3ms is the longest time a 64byte message should take to send over the serial line
 
-int MSG_Timeout = 3;  // miliseconds for the 64byte (max time to read the message)
+int MSG_Timeout = 25;  // miliseconds for the 64byte (max time to read the message)
 bool first_Byte = 1;
 int bytePOS = 0;
 int MessagePOS;

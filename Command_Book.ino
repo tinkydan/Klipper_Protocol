@@ -241,7 +241,19 @@ case 16:
 
 case 17:
    //__  config_digital_out   __//
+
+
    SerialPtLnCom("config_digital_out");
+   if (IntVals[2]>=50){
+        SerialPtLnCom("this pin can only be hardware pwm");
+    IntVals[6]=10000000;
+    IntVals[5]=IntVals[4]; 
+    IntVals[4]=IntVals[3];
+    IntVals[3]=1000;
+    Run(46);
+
+   }
+   else{
    oid=IntVals[1];
    SerialPtCom("     oid=" + String(oid));
    pin=IntVals[2];
@@ -263,7 +275,7 @@ case 17:
     DpinOut[DigitalPin][5]=0; // Change time
     DpinOut[DigitalPin][6]=0; // Flag for software PWM
     DpinOut[DigitalPin][7]=0; // ticks last pwm
-    DigitalPin++;
+    DigitalPin++;}
 
    break;
 
@@ -482,9 +494,9 @@ case 32:
    oid=IntVals[1];
    SerialPtCom("     oid=" + String(oid));
    pin=IntVals[2];
-   if(oid==19){pin=34;}
    SerialPtCom("     pin=" + String(pin));
    SerialPtLnCom("   |");
+   pinMode(pin, INPUT);
    AnalogMetaData[analogChannels][1]=pin; // active  // PIn Num // OID  // Index // 
    AnalogMetaData[analogChannels][2]=oid; // active // PIn Num // OID  // Index // 
    analogChannels++;
@@ -688,6 +700,11 @@ case 45:
    break;
 
 case 46:
+
+
+
+
+
    //__  config_pwm_out   __//
    SerialPtLnCom("config_pwm_out");
    oid=IntVals[1];
