@@ -160,31 +160,31 @@ volatile int brightness = 5000;
 float brightnessF = 5000;
 void ICACHE_RAM_ATTR PWM1_Rf() { //PWM /rising edge
 
-  PWM1_H=micros();
+  PWM1_H=Offsey_micros();
   PWM1_P = PWM1_H-PWM1_R;
   PWM1_R = PWM1_H;
    attachInterrupt(PWM1Pin, PWM1_Ff, FALLING);
 }
 
 void ICACHE_RAM_ATTR PWM1_Ff() { //PWM Falling edge
-  PWM1_H2=(micros() - PWM1_R);
+  PWM1_H2=(Offsey_micros() - PWM1_R);
   
   if (PWM1_P>100){
-  PWM1 = double((micros() - PWM1_R) / double(PWM1_P));
+  PWM1 = double((Offsey_micros() - PWM1_R) / double(PWM1_P));
   }
   attachInterrupt(PWM1Pin, PWM1_Rf, RISING);
   
 }
 void ICACHE_RAM_ATTR PWM2_Ff() { //PWM Falling edge
-  PWM2_H2=(micros() - PWM2_R);
+  PWM2_H2=(Offsey_micros() - PWM2_R);
   if (PWM2_P>100){
-  PWM2 = double((micros() - PWM2_R) / double(PWM2_P));}//PWM2_P
+  PWM2 = double((Offsey_micros() - PWM2_R) / double(PWM2_P));}//PWM2_P
    attachInterrupt(PWM2Pin, PWM2_Rf, RISING);
 }
 
 void ICACHE_RAM_ATTR PWM2_Rf() { //PWM /rising edge
 
-  PWM2_H=micros();
+  PWM2_H=Offsey_micros();
   PWM2_P = PWM2_H - PWM2_R;
   PWM2_R = PWM2_H;
    attachInterrupt(PWM2Pin, PWM2_Ff, FALLING);
@@ -210,7 +210,7 @@ void sort(double a[], int pos[], int size) {
 
 /*
 void ICACHE_RAM_ATTR PWM1_CHG(){
-  PWM1_L=micros()-PWM1_L;
+  PWM1_L=Offsey_micros()-PWM1_L;
   if(PWM1_L>90){
     
   
@@ -222,11 +222,11 @@ void ICACHE_RAM_ATTR PWM1_CHG(){
     delayMicroseconds(30);
     PWM1_Ff();
   }}
-  PWM1_L=micros();
+  PWM1_L=Offsey_micros();
 }
 
 void ICACHE_RAM_ATTR PWM2_CHG(){
-    PWM2_L=micros()-PWM2_L;
+    PWM2_L=Offsey_micros()-PWM2_L;
   if(PWM2_L>25){
   if (digitalRead(PWM2Pin)){
     PWM2_Rf();
@@ -234,7 +234,7 @@ void ICACHE_RAM_ATTR PWM2_CHG(){
   else{
     PWM2_Ff();
   }}
-   PWM2_L=micros();
+   PWM2_L=Offsey_micros();
 }
 
 */
@@ -291,7 +291,7 @@ void ICACHE_RAM_ATTR ZXA() {
 void ICACHE_RAM_ATTR onTimerISR() {
   //Toggle LED Pin
 
-  TT = micros() - ZX;
+  TT = Offsey_micros() - ZX;
   TC++;
   for (int i = 0; i < Nchan; i++) {
     if (PIN_LAST[i] > 0) {
@@ -347,7 +347,7 @@ void ICACHE_RAM_ATTR ZCISR() { //zero cross detect
   //memcpy(Bright, BrightSet, Nchan*4);
   //memcpy(Pin, PinSet, Nchan*4);
 
-  unsigned long ch = micros() - ZX;
+  unsigned long ch = Offsey_micros() - ZX;
 
  //if (ch > 1500) {
     ZCCr=ZCCr+1;
@@ -357,7 +357,7 @@ void ICACHE_RAM_ATTR ZCISR() { //zero cross detect
     delayMicroseconds(300);
     TIMERC();
     ZeroCross = 1;
-    ZX = micros();
+    ZX = Offsey_micros();
 //}
 }
 
@@ -428,14 +428,14 @@ void loop() {
 
 
 
-    if ((PWM1_P != 1) || ((micros() - PWM1_R) > TIMEOUT)) {
-      if ((micros() - PWM1_R) > TIMEOUT) {
+    if ((PWM1_P != 1) || ((Offsey_micros() - PWM1_R) > TIMEOUT)) {
+      if ((Offsey_micros() - PWM1_R) > TIMEOUT) {
         PWM1 = digitalRead(PWM1Pin);
       }
       BrightSetD[0] = PWM1 * 8160;
     }
-    if ((PWM2_P != 1) || ((micros() - PWM2_R) > TIMEOUT)) {
-      if ((micros() - PWM2_R) > TIMEOUT) {
+    if ((PWM2_P != 1) || ((Offsey_micros() - PWM2_R) > TIMEOUT)) {
+      if ((Offsey_micros() - PWM2_R) > TIMEOUT) {
         PWM2 = digitalRead(PWM2Pin);
       }
       BrightSetD[1] = PWM2 * 8160;

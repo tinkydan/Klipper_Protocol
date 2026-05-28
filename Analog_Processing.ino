@@ -11,32 +11,38 @@ void AnalogReadTaskcode( void * parameter) {
 
     for (int Ch_num = 0; Ch_num < analogChannels; Ch_num++) {
       if (AnalogMetaData[Ch_num][0]==1){
-        if ((micros() - AnalogTimmingData[Ch_num][0]) > AnalogMetaData[Ch_num][4]) {  //if channel is active and the time since the last sample is greater than hte sample ticks
-          AnalogTimmingData[Ch_num][0] = micros();
+        if ((Offsey_micros() - AnalogTimmingData[Ch_num][0]) > AnalogMetaData[Ch_num][4]) {  //if channel is active and the time since the last sample is greater than hte sample ticks
+          AnalogTimmingData[Ch_num][0] = Offsey_micros();
           AnalogMetaData[Ch_num][3]++;
           if (AnalogMetaData[Ch_num][3] >= AnalogMetaData[Ch_num][5]) {  //if the sample index needed to be rolled over since it is at the total sample number
             AnalogMetaData[Ch_num][3] = 0;
           }
           AnalogReadings[Ch_num][AnalogMetaData[Ch_num][3]] = analogRead(AnalogMetaData[Ch_num][1]);
-           //Serial.println("Analog Reading " + String(micros())+"   " +String(AnalogReadings[Ch_num][AnalogMetaData[Ch_num][3]]));
+           //Serial.println("Analog Reading " + String(Offsey_micros())+"   " +String(AnalogReadings[Ch_num][AnalogMetaData[Ch_num][3]]));
           // check the max and min input values
           //   AnalogMetaData[Ch_num][7]=IntVals[6]; // Min_value
           //   AnalogMetaData[Ch_num][8]=IntVals[7]; // Max_Value
           //   AnalogMetaData[Ch_num][9]=IntVals[8]; // Range Check Count
         }
 
-        if (((micros() - AnalogTimmingData[Ch_num][1]) > AnalogMetaData[Ch_num][6]) && (responding == 0)) {  //if channel is active and the time since the last sample is greater than hte sample ticks
+
+         int indc=0;
+          while((responding==1)&&(indc<2000)){
+            delayMicroseconds(1);
+          indc++;
+        }
+        if (((Offsey_micros() - AnalogTimmingData[Ch_num][1]) > AnalogMetaData[Ch_num][6])) {  //if channel is active and the time since the last sample is greater than hte sample ticks
           int sample_val=0;
-          AnalogTimmingData[Ch_num][1] = micros();
+          AnalogTimmingData[Ch_num][1] = Offsey_micros();
           for (int i = 0; i < AnalogMetaData[Ch_num][5]; i++) {
             sample_val += AnalogReadings[Ch_num][i];
             //Serial.println("Analog Reading in" + String(AnalogReadings[Ch_num][i]));
           }
-          SerialPtLnDebug("Analog OID:" + String(AnalogMetaData[Ch_num][2]) + " Reading "  +String(sample_val));
+          //p//SerialPtLnDebug("Analog OID:" + String(AnalogMetaData[Ch_num][2]) + " Reading "  +String(sample_val));
           setup_reply();
           EncodeIntoReply(-23);                        // Function ID
           EncodeIntoReply(AnalogMetaData[Ch_num][2]);  // OID
-          EncodeIntoReply(micros());                   // Clock time
+          EncodeIntoReply(Offsey_micros());                   // Clock time
           EncodeIntoReply(sample_val);                 // Analog Read Vales
           finish_reply();
         }
@@ -49,14 +55,14 @@ void AnalogReadTaskcode( void * parameter) {
 
 // -23:
 //__  analog_in_state   __//
-// SerialPtLnCom("analog_in_state");
+// //@////p//SerialPtLnCom("analog_in_state");
 // oid=IntVals[1];
 //  erialPtCom("     oid=" + String(oid));
 // next_clock=IntVals[2];
-// SerialPtCom("     next_clock=" + String(next_clock));
+// //@////p////p//SerialPtCom("     next_clock=" + String(next_clock));
 // value=IntVals[3];
-// SerialPtCom("     value=" + String(value));
-//  SerialPtLnCom("   |");
+// //@////p////p//SerialPtCom("     value=" + String(value));
+//  //@////p//SerialPtLnCom("   |");
 
 
 
@@ -123,35 +129,35 @@ config_stepper
 
 //case 31:
 //__  query_analog_in   __//
-/* SerialPtLnCom("query_analog_in");
+/* //@////p//SerialPtLnCom("query_analog_in");
    oid=IntVals[1];
-   SerialPtCom("     oid=" + String(oid));
+   //@////p////p//SerialPtCom("     oid=" + String(oid));
    clockint=IntVals[2];
-   SerialPtCom("     clockint=" + String(clockint));
+   //@////p////p//SerialPtCom("     clockint=" + String(clockint));
    sample_ticks=IntVals[3];
-   SerialPtCom("     sample_ticks=" + String(sample_ticks));
+   //@////p////p//SerialPtCom("     sample_ticks=" + String(sample_ticks));
    sample_count=IntVals[4];
-   SerialPtCom("     sample_count=" + String(sample_count));
+   //@////p////p//SerialPtCom("     sample_count=" + String(sample_count));
    rest_ticks=IntVals[5];
-   SerialPtCom("     rest_ticks=" + String(rest_ticks));
+   //@////p////p//SerialPtCom("     rest_ticks=" + String(rest_ticks));
    min_value=IntVals[6];
-   SerialPtCom("     min_value=" + String(min_value));
+   //@////p////p//SerialPtCom("     min_value=" + String(min_value));
    max_value=IntVals[7];
-   SerialPtCom("     max_value=" + String(max_value));
+   //@////p////p//SerialPtCom("     max_value=" + String(max_value));
    range_check_count=IntVals[8];
-   SerialPtCom("     range_check_count=" + String(range_check_count));
-   SerialPtLnCom("   |");
+   //@////p////p//SerialPtCom("     range_check_count=" + String(range_check_count));
+   //@////p//SerialPtLnCom("   |");
 
    break;
 
 case 32:
    //__  config_analog_in   __//
-   SerialPtLnCom("config_analog_in");
+   //@////p//SerialPtLnCom("config_analog_in");
    oid=IntVals[1];
-   SerialPtCom("     oid=" + String(oid));
+   //@////p////p//SerialPtCom("     oid=" + String(oid));
    pin=IntVals[2];
-   SerialPtCom("     pin=" + String(pin));
-   SerialPtLnCom("   |");
+   //@////p////p//SerialPtCom("     pin=" + String(pin));
+   //@////p//SerialPtLnCom("   |");
 
    break;
    */

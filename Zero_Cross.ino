@@ -10,7 +10,7 @@ void sort_vals() {
   for (int i = 0; i < Nchan; i++) {
     BrightSetDs[i] = BrightSetD[i];
   }
-  SerialPtDebug(" \n");
+  //@////p//SerialPtDebug(" \n");
 
 
 
@@ -51,7 +51,7 @@ void sort_vals() {
      // while ((i + 1) < Nchan) {  // This section itterater over the number of channels that are at the same brighness level
       //  if (Bright[i + 1] == Bright[i]) {
      //     next_same[i] = 1;
-      //    SerialPtLnDebug("Pin Set Sorted: " + String(PinSet[i]) + "  Bright " + String(Bright[i])  + "  NextS:" + String(next_same[i]) + " timmer width " + String(timmer_width[i]));
+      //    //@////p//SerialPtLnDebug("Pin Set Sorted: " + String(PinSet[i]) + "  Bright " + String(Bright[i])  + "  NextS:" + String(next_same[i]) + " timmer width " + String(timmer_width[i]));
      //     i++;
      //   } 
      //   else {
@@ -64,14 +64,14 @@ void sort_vals() {
       break;
     }
     Nchan_on_temp = i + 1;
-    SerialPtLnDebug("Pin Set Sorted: " + String(PinSet[i]) + "  Brightness sort " + String(Bright[i])  + "  NextS:" + String(next_same[i]) + " timmer width " + String(timmer_width_temp[i]));
+    //@////p//SerialPtLnDebug("Pin Set Sorted: " + String(PinSet[i]) + "  Brightness sort " + String(Bright[i])  + "  NextS:" + String(next_same[i]) + " timmer width " + String(timmer_width_temp[i]));
     i++;
   }
   next_same[Nchan-1] = 0;
   timmer_width_temp[Nchan] = 100000;
    Nchan_on = Nchan_on_temp;
    Nchan_full = Nchan_full_temp;
-  SerialPtLnDebug(" Nchan:" + String(Nchan)+  " Nchan_on:" + String(Nchan_on) + " Nchan_full:" + String(Nchan_full));
+  //@////p//SerialPtLnDebug(" Nchan:" + String(Nchan)+  " Nchan_on:" + String(Nchan_on) + " Nchan_full:" + String(Nchan_full));
 
 
   for (int i = 0; i <= Nchan; i++) {
@@ -96,10 +96,10 @@ void sort(double a[], int pos[], int size) {
   }
   /*
   for (int i = 0; i < size; i++) {
-    SerialPtDebug(" Pin Presort: " + String(PinSet[i]));
+    //@////p//SerialPtDebug(" Pin Presort: " + String(PinSet[i]));
   PinSet[i]=pos[i];
   BrightSetDs[i]=a[i];
-  SerialPtLnDebug("  Bright unsorted: "  +  String(BrightSetD[i])  + "Pin Set Sorted: " + String(PinSet[i]) + "  Brightness sort " + String(BrightSetDs[i]));
+  //@////p//SerialPtLnDebug("  Bright unsorted: "  +  String(BrightSetD[i])  + "Pin Set Sorted: " + String(PinSet[i]) + "  Brightness sort " + String(BrightSetDs[i]));
   }
   */
 }
@@ -112,10 +112,10 @@ void ICACHE_RAM_ATTR ZCISR() {  //zero cross detect
   //memcpy(Bright, BrightSet, Nchan*4);
   //memcpy(Pin, PinSet, Nchan*4);
 
-  ch = micros() - ZX;
+  ch = Offsey_micros() - ZX;
   if (ch > 8000) {
     ZXV = ch;
-    chac = micros() - ZX;
+    chac = Offsey_micros() - ZX;
     //drift=chac-16666;
     // if (abs(drift) > 1000){drift=0;}
     if (Nchan_on > 0) {
@@ -130,7 +130,7 @@ void ICACHE_RAM_ATTR ZCISR() {  //zero cross detect
 
     // correction=correction*0.99+float(drift)*.01;
     //if (abs(correction)>100){correction=0;}
-    ZX = micros();  //-correction;
+    ZX = Offsey_micros();  //-correction;
     refire_count = 1;
     //for (int i = 0; i < Nchan; i++) {
     //
@@ -171,8 +171,8 @@ void ICACHE_RAM_ATTR ZXA() {
 
 void ICACHE_RAM_ATTR onTimerISR() {
   //Toggle LED Pin
-  tstart=micros();
-  TT = micros() - ZX;
+  tstart=Offsey_micros();
+  TT = Offsey_micros() - ZX;
 
   timer1_write_val=timmer_width[CUR_CHAN+1]; //  only want the first if there are more than 1 that are the same
   digitalWrite(Pin[CUR_CHAN], HIGH);
@@ -181,7 +181,7 @@ void ICACHE_RAM_ATTR onTimerISR() {
   timerAlarmWrite(timer, timer1_write_val, false);
   timerAlarmEnable(timer);
   
-  trec=micros()-tstart;
+  trec=Offsey_micros()-tstart;
 
 }
 
@@ -237,8 +237,8 @@ void ICACHE_RAM_ATTR ZXA() {
 
 void ICACHE_RAM_ATTR onTimerISR() {
   //Toggle LED Pin
-  tstart=micros();
-  TT = micros() - ZX;
+  tstart=Offsey_micros();
+  TT = Offsey_micros() - ZX;
   TC++;
   for (int i = 0; i < Nchan; i++) {
     if (PIN_LAST[i] > 0) {
@@ -271,7 +271,7 @@ void ICACHE_RAM_ATTR onTimerISR() {
       break;
     }
   }
-  trec=micros()-tstart;
+  trec=Offsey_micros()-tstart;
 
 }
 */

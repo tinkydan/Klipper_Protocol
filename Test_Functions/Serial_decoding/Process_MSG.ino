@@ -19,6 +19,29 @@ int64_t ProcessNextInt() {
   return IntVal;
 }
 
+
+void Process_MSG1() {
+  Serial.println("ProcessedSerial1 ");
+  bytePOS=bytePOS1;
+    for (int i=0; i<=bytePOS;i++){
+    Message[i]=Message1[i];
+  }
+      for (int i=0; i<3;i++){
+    Trailer[i]=Trailer1[i];
+  }
+ }
+void Process_MSG2() { 
+  Serial.println("ProcessedSerial2 ");
+    bytePOS=bytePOS2;
+    for (int i=0; i<=bytePOS;i++){
+    Message[i]=Message2[i];
+  }
+      for (int i=0; i<3;i++){
+    Trailer[i]=Trailer2[i];
+  }
+}
+
+
 void Process_MSG() {  //byte Message[], byte Trailer[],int lenh) {
   MessagePOS = 2;
   byte ByteComb[5];

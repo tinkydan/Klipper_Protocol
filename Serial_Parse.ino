@@ -20,7 +20,7 @@ void Serial_Parse(){
         inByte = Serial.read();
       #endif
       
-      Bytesall="SERIAL 1 first byte " + String(inByte) + " ";
+      //@//Bytesall="SERIAL 1 first byte " + String(inByte) + " ";
       Serial_MSG = millis();
       breakbreak = 0;
       //int inByte1 = inByte;
@@ -30,22 +30,22 @@ void Serial_Parse(){
         first_Byte=1;// not an acceptable length
       }
       if ((inByte > 64)&&(inByte!=126)){
-        SerialPtDebug("Dumping bad values until 126\n     ->");
+        //@////p//SerialPtDebug("Dumping bad values until 126\n     ->");
          while (Serial.available()) {
           inByte = Serial.read();
-          SerialPtDebug(String(inByte) + " ");
+          //p//SerialPtDebug(String(inByte) + " ");
             if (inByte==126){
               first_Byte=1;
               break;
             }
         }
-        SerialPtLnDebug();
+        //p//SerialPtLnDebug();
         // Read until 126 is encountered or serial is not avalible
       }
       //byte ByteMSG[inByte1 - 3];
       //byte ByteTrail[3];
       Message[bytePOS] = inByte;
-      SerialPtLnDebug(Bytesall);
+      //@////p//SerialPtLnDebug(//@//Bytesall);
  
 
     } 
@@ -53,7 +53,7 @@ void Serial_Parse(){
         // Read timmed out
       first_Byte = 1;
         Process_MSG();//ByteMSG, ByteTrail, inByte1);
-         SerialPtLnDebug(Bytesall);
+         //@////p//SerialPtLnDebug(//@//Bytesall);
       }
     else {
        
@@ -70,7 +70,7 @@ void Serial_Parse(){
           #endif
 
           //Serial.println(String(Message[bytePOS]));
-          Bytesall+=String(Message[bytePOS]) + " ";
+          //@//Bytesall+=String(Message[bytePOS]) + " ";
         } else {
          // Trailer[bytePOS] = Serial.read();
           #ifdef StringDebug
@@ -79,26 +79,26 @@ void Serial_Parse(){
            Trailer[bytePOS-inByte+3] = Serial.read();
            #endif
           //Serial.println(String(Trailer[bytePOS-inByte+3])+ "in byte " + String(bytePOS));
-          Bytesall+=String( Trailer[bytePOS-inByte+3]) + " ";
+          //@//Bytesall+=String( Trailer[bytePOS-inByte+3]) + " ";
         }
 
         if (bytePOS >= (inByte - 1)) {
           first_Byte = 1;
-           SerialPtLnDebug(Bytesall);
-           
+           //@////p//SerialPtLnDebug(//@//Bytesall);
+           //p//SerialPtLnDebug("Completed serial read" + String(millis() - Serial_MSG) + "ms");
 //Serial.println(String(Message[0]) );
           Process_MSG();//ByteMSG, ByteTrail, inByte1);
 
       if (Trailer[bytePOS-inByte+3]!=126) {
-      SerialPtDebug("Dumping values until 126\n     ->");
+      //p//SerialPtDebug("Dumping values until 126\n     ->");
          while (Serial.available()) {
           inByte = Serial.read();
-          SerialPtDebug(String(inByte) + " ");
+          //p//SerialPtDebug(String(inByte) + " ");
             if (inByte==126){
               break;
             }
         }
-        SerialPtLnDebug();
+        //p//SerialPtLnDebug();
         // Read until 126 is encountered or serial is not avalible
       }
          
